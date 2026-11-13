@@ -2,9 +2,9 @@
 src = "src"
 out = "out"
 libs = ["lib"]
+auto_detect_solc = true
 test = "test"
 script = "script"
-solc_version = "0.8.30"
 # Uniswap v4 uses transient storage, so contracts that touch it need Cancun.
 evm_version = "cancun"
 optimizer = true
@@ -17,3 +17,9 @@ lasna = "${LASNA_RPC}"
 
 [fmt]
 line_length = 110
+
+[lint]
+# RespoolVault only calls the trusted Uniswap v4 PoolManager and Respool's own test tokens, and every
+# state change runs inside PoolManager.unlock, which cannot be re-entered. The reentrancy lints flag
+# those calls generically, so they are turned off here rather than line by line.
+exclude_lints = ["reentrancy-events", "reentrancy-no-eth"]

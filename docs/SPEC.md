@@ -125,7 +125,7 @@ Stretch: a v4 hook emitting `DepthLow` as an extra trigger.
 | By | Slice |
 |---|---|
 | Nov 15 | Foundry builds; `RespoolPolicy` unit tests green (done Nov 13) |
-| Nov 19 | Tokens + vault on a local fork: recentre and depart/arrive tested against a forked PoolManager |
+| Nov 19 | Tokens + vault: recentre and depart/arrive tested against a PoolManager (done Nov 13, local PoolManager rather than a fork) |
 | Nov 23 | Brain deployed on Lasna; same-chain recentre loop live on Unichain Sepolia; first latency number |
 | Nov 27 | Base Sepolia added; cross-chain move live |
 | Dec 1 | Observer + latency report (30+ loops), dashboard |

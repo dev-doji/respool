@@ -81,16 +81,38 @@ contract RespoolVaultTest is Test {
 
     /// Sell token0 until the price reaches `limitTick` (or the input runs out).
     function _pushDown(Side memory s, int24 limitTick) internal {
+        _swap(s, true, 500 ether, limitTick);
+    }
+
+    /// Sell token1 until the price reaches `limitTick` (or the input runs out).
+    function _pushUp(Side memory s, int24 limitTick) internal {
+        _swap(s, false, 500 ether, limitTick);
+    }
+
+    function _swap(Side memory s, bool zeroForOne, uint256 amountIn, int24 limitTick) internal {
         router.swap(
             s.key,
             SwapParams({
-                zeroForOne: true,
-                amountSpecified: -int256(500 ether),
+                zeroForOne: zeroForOne,
+                amountSpecified: -int256(amountIn),
                 sqrtPriceLimitX96: TickMath.getSqrtPriceAtTick(limitTick)
             }),
             PoolSwapTest.TestSettings({takeClaims: false, settleUsingBurn: false}),
             ""
         );
+    }
+
+    uint256 constant DUST = 1e6;
+
+    /// Tokens the vault holds outside the pool. After any reposition these should be dust.
+    function _idle(Side memory s) internal view returns (uint256, uint256) {
+        return (s.t0.balanceOf(address(s.vault)), s.t1.balanceOf(address(s.vault)));
+    }
+
+    function _assertNothingIdle(Side memory s) internal view {
+        (uint256 i0, uint256 i1) = _idle(s);
+        assertLe(i0, DUST, "token0 left idle");
+        assertLe(i1, DUST, "token1 left idle");
     }
 
     // ------------------------------------------------------------------ bootstrap
@@ -134,8 +156,90 @@ contract RespoolVaultTest is Test {
         a.vault.recentre(BRAIN, 1, tick, keccak256("swap-tx"));
 
         assertFalse(RespoolPolicy.outOfRange(tick, a.vault.tickLower(), a.vault.tickUpper()));
-        assertGt(a.vault.liquidity(), 0);
+        assertGt(a.vault.totalLiquidity(), 0);
         assertEq(a.vault.lastRecentreSeq(), 1);
+        _assertNothingIdle(a);
+    }
+
+    // ------------------------------------------------------------------ inventory (the drain fix)
+
+    function test_bootstrap_parksLeftoverInLimitPosition() public view {
+        // The base range around tick 0 is not symmetric, so one token is left over: it goes into the
+        // one-sided limit position instead of sitting idle.
+        assertGt(a.vault.limitLiquidity(), 0);
+        _assertNothingIdle(a);
+    }
+
+    function test_fullCrossing_movesInventoryToLimitAbovePrice() public {
+        _pushDown(a, -600); // price falls through everything: the vault now holds only token0
+        vm.prank(PROXY);
+        a.vault.recentre(BRAIN, 1, 0, bytes32(0));
+
+        int24 tick = _tick(a);
+        assertGt(a.vault.limitLiquidity(), 0);
+        assertGt(a.vault.limitLower(), tick, "token0 limit must sit above the price");
+        _assertNothingIdle(a);
+    }
+
+    /// Price returns into the limit position: traders convert the vault's token0 back into token1, so the
+    /// next recentre has token1 again. Under the old design the token0 sat idle and never converted.
+    function test_priceReturn_convertsLimitBackToScarceToken() public {
+        _pushDown(a, -600);
+        vm.prank(PROXY);
+        a.vault.recentre(BRAIN, 1, 0, bytes32(0));
+        assertEq(_poolToken1Value(a), 0, "after a full crossing the vault holds no token1");
+
+        _pushUp(a, a.vault.limitUpper()); // trade back up through the limit range
+        vm.prank(PROXY);
+        a.vault.recentre(BRAIN, 2, 0, bytes32(0));
+
+        assertGt(_poolToken1Value(a) + a.t1.balanceOf(address(a.vault)), 0, "limit converted to token1");
+        _assertNothingIdle(a);
+    }
+
+    /// Ten full crossings in alternating directions: every recentre leaves no idle tokens and the vault
+    /// keeps liquidity in the pool throughout, without any top-up.
+    function test_oscillation_keepsInventoryDeployed() public {
+        uint256 supply0 = a.t0.totalSupply();
+        uint256 supply1 = a.t1.totalSupply();
+        for (uint64 i = 1; i <= 10; i++) {
+            int24 t = _tick(a);
+            if (i % 2 == 1) _pushDown(a, t - 600);
+            else _pushUp(a, t + 600);
+            vm.prank(PROXY);
+            a.vault.recentre(BRAIN, i, 0, bytes32(0));
+            assertGt(a.vault.totalLiquidity(), 0);
+            _assertNothingIdle(a);
+        }
+        // The vault minted nothing: no top-ups were needed.
+        assertEq(a.t0.totalSupply(), supply0);
+        assertEq(a.t1.totalSupply(), supply1);
+    }
+
+    function test_depart_takesShareOfBothPositions() public {
+        uint128 base = a.vault.liquidity();
+        uint128 lim = a.vault.limitLiquidity();
+        assertGt(lim, 0);
+        vm.prank(PROXY);
+        a.vault.depart(BRAIN, 1, 5_000, 84532, bytes32(0));
+        assertApproxEqAbs(a.vault.liquidity(), base / 2, 1);
+        assertApproxEqAbs(a.vault.limitLiquidity(), lim / 2, 1);
+    }
+
+    /// token1 the vault has inside the pool, from its two positions' liquidity at the current price.
+    function _poolToken1Value(Side memory s) internal view returns (uint256 v) {
+        (uint160 sqrtP,,,) = pm.getSlot0(s.key.toId());
+        v += _amount1(sqrtP, s.vault.tickLower(), s.vault.tickUpper(), s.vault.liquidity());
+        v += _amount1(sqrtP, s.vault.limitLower(), s.vault.limitUpper(), s.vault.limitLiquidity());
+    }
+
+    function _amount1(uint160 sqrtP, int24 lo, int24 hi, uint128 l) internal pure returns (uint256) {
+        if (l == 0) return 0;
+        uint160 a_ = TickMath.getSqrtPriceAtTick(lo);
+        uint160 b_ = TickMath.getSqrtPriceAtTick(hi);
+        if (sqrtP <= a_) return 0;
+        uint160 top = sqrtP < b_ ? sqrtP : b_;
+        return (uint256(l) * (top - a_)) >> 96;
     }
 
     function test_recentre_skipsWhenStillInRange() public {

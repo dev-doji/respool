@@ -33,7 +33,7 @@ const TOPIC = {
   CallbackSkipped: "0xe8c2d6fc461477af30fb180f8c6b5a5b64d2b795cebb13ccd392f2345f299e15",
 };
 const NAME = Object.fromEntries(Object.entries(TOPIC).map(([k, v]) => [v, k]));
-const LIQUIDITY_SELECTOR = "0x1a686502"; // liquidity()
+const LIQUIDITY_SELECTOR = "0x15770f92"; // totalLiquidity(): base + limit position
 
 function readEnv() {
   const env = { ...process.env };
@@ -282,7 +282,7 @@ async function run(args) {
     const n = names[i % names.length];
     const c = cs[n];
     if ((await vaultLiquidity(c)) < 10n ** 20n) {
-      console.log(`  (top-up: ${n} vault liquidity low, running Bootstrap with 50 test tokens per side)`);
+      console.log(`  (top-up: ${n} vault total liquidity low, running Bootstrap with 50 test tokens per side)`);
       appendFileSync(RESULTS, JSON.stringify({ kind: "topup", chain: n, at: new Date().toISOString() }) + "\n");
       await forge("Bootstrap.s.sol", RPC_ALIAS[n], { SEED_WEI: String(50n * 10n ** 18n) });
     }

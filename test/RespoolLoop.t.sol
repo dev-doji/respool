@@ -186,7 +186,7 @@ contract RespoolLoopTest is Test {
         assertTrue(hasRange);
         assertEq(lo, u.vault.tickLower());
         assertEq(hi, u.vault.tickUpper());
-        assertEq(liq, u.vault.liquidity());
+        assertEq(liq, u.vault.totalLiquidity());
     }
 
     /// Price leaves the range on "Unichain"; the brain asks the vault to recentre; the vault does.

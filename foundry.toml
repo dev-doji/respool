@@ -9,6 +9,8 @@ script = "script"
 evm_version = "cancun"
 optimizer = true
 optimizer_runs = 200
+# Deploy scripts record addresses in deployments/<chainId>.json.
+fs_permissions = [{ access = "read-write", path = "./deployments" }]
 
 [rpc_endpoints]
 unichain_sepolia = "${UNICHAIN_SEPOLIA_RPC}"

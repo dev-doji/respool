@@ -18,7 +18,8 @@ Built for the Reactive hackathon track **Every Second Counts**. Full design: [do
 | `RespoolToken` (test-only ERC-20) and `RespoolVault` | Done, tested locally: 13 tests in `test/RespoolVault.t.sol` against a real v4 PoolManager deployed in the test (recentre, depart, arrive, auth, duplicate and out-of-order callbacks, supply conserved across a move). Not deployed yet |
 | `RespoolBrain` (reactive contract) | Done, tested locally: 15 unit tests in `test/RespoolBrain.t.sol` (subscriptions, recentre rule, move rule, arrive only for the in-flight move, auth) using a mock of the Reactive system contract. Not deployed yet |
 | End-to-end loop (**simulated**) | 3 tests in `test/RespoolLoop.t.sol`: real brain + two real vaults + a test relay standing in for Reactive Network. Shows recentre and a full cross-pool move. No real network, no timing |
-| Deployment to Lasna / Unichain Sepolia / Base Sepolia | Not started |
+| Deploy scripts | Written ([docs/DEPLOY.md](docs/DEPLOY.md)). Full sequence rehearsed on local forks with `bash script/dryrun.sh` |
+| Deployment to Lasna / Unichain Sepolia / Base Sepolia | Not yet deployed (waiting on a funded testnet wallet) |
 | Latency measurements | Not started |
 
 ## Requirements
@@ -52,5 +53,10 @@ test/RespoolBrain.t.sol      brain unit tests with hand-built logs
 test/RespoolLoop.t.sol       simulated end-to-end loop (brain + both vaults + test relay)
 test/utils/MockSystem.sol    test double for the Reactive system contract
 test/utils/V4Artifacts.sol   compiles PoolManager (solc 0.8.26) so tests can deploy it
+script/RespoolConfig.sol     per-chain addresses (checked on chain) and brain settings
+script/*.s.sol               DeployBrain, DeployChain, ConfigureBrain, Bootstrap, Swap
+script/dryrun.sh             rehearse all scripts on local forks (needs anvil)
+deployments/                 addresses written by the scripts, one JSON per chain
 docs/SPEC.md                 design, verified addresses, latency method, milestones
+docs/DEPLOY.md               testnet deployment steps, funding, faucets
 ```

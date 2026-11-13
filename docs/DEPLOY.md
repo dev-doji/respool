@@ -89,5 +89,6 @@ and triggers a recentre.
 | Addresses (PoolManager, PoolSwapTest, callback proxies, lREACT faucet) | Code present on chain; routers point at the right PoolManager |
 | Lasna EVM | Accepts Cancun opcodes (PUSH0, MCOPY, TLOAD), checked with read-only calls |
 | Scripts | Full sequence succeeds on local forks (`script/dryrun.sh`) |
-| `subscribe()` after deployment | Did not revert against a fork of Lasna's system contract; live delivery not yet seen |
-| Live callbacks on Unichain Sepolia / Base Sepolia | Not yet run |
+| `subscribe()` after deployment | Works live: the brain subscribed in `configureChain` and received Base Sepolia events |
+| Live loop on Base Sepolia | Working: Base event reached the brain on Lasna; recentre callback executed on the Base vault (see LATENCY.md) |
+| Live loop on Unichain Sepolia | Not yet run (no Unichain Sepolia ETH) |

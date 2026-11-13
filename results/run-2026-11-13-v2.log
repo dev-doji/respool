@@ -1,0 +1,262 @@
+run 1/30: swap on base (down)
+22:32:04.776 base     Swap               #58436460 0x46788dc3
+22:32:05.099 lasna    RecentreRequested  #8279528 0x46788dc3
+22:32:05.099 lasna    MoveRequested      #8279528 0x46788dc3
+22:32:05.731 base     Recentred          #58436467 0x46788dc3
+  => LOOP recentre into base: full 1400 ms (block clock), 955 ms (wall clock)
+22:32:07.645 lasna    ArriveRequested    #8279530 0x975b2713
+22:32:08.052 unichain Departed           #67756735 0x46788dc3
+22:32:08.085 base     Arrived            #58436477 0x975b2713
+  => LOOP move into base: full 3400 ms (block clock), 3309 ms (wall clock)
+22:32:08.598 lasna    MoveCompleted      #8279531 0x07146a18
+run 2/30: swap on unichain (down)
+22:32:26.915 lasna    RecentreRequested  #8279548 0x390ccbcf
+22:32:27.374 unichain Swap               #67756754 0x390ccbcf
+22:32:29.230 unichain Recentred          #67756756 0x390ccbcf
+  => LOOP recentre into unichain: full 2000 ms (block clock), 1857 ms (wall clock)
+run 3/30: swap on base (up)
+22:32:50.505 base     Swap               #58436689 0xbdb0f33a
+22:32:51.909 lasna    RecentreRequested  #8279572 0xbdb0f33a
+22:32:51.909 lasna    MoveRequested      #8279572 0xbdb0f33a
+22:32:52.874 base     Recentred          #58436701 0xbdb0f33a
+  => LOOP recentre into base: full 2400 ms (block clock), 2368 ms (wall clock)
+22:32:54.096 unichain Departed           #67756781 0xbdb0f33a
+22:32:54.473 lasna    ArriveRequested    #8279574 0x015695c9
+22:32:54.567 base     Arrived            #58436711 0x015695c9
+  => LOOP move into base: full 4400 ms (block clock), 4062 ms (wall clock)
+run 4/30: swap on unichain (up)
+22:32:57.310 lasna    MoveCompleted      #8279577 0x819619fd
+22:33:14.687 lasna    RecentreRequested  #8279593 0x10b1e7b0
+22:33:15.235 unichain Swap               #67756802 0x10b1e7b0
+22:33:17.145 unichain Recentred          #67756804 0x10b1e7b0
+  => LOOP recentre into unichain: full 2000 ms (block clock), 1910 ms (wall clock)
+run 5/30: swap on base (down)
+22:33:39.023 lasna    RecentreRequested  #8279616 0x5712c8bf
+22:33:39.023 lasna    MoveRequested      #8279616 0x5712c8bf
+22:33:39.068 base     Swap               #58436931 0x5712c8bf
+22:33:40.036 base     Recentred          #58436936 0x5712c8bf
+  => LOOP recentre into base: full 1000 ms (block clock), 969 ms (wall clock)
+22:33:41.490 unichain Departed           #67756828 0x5712c8bf
+22:33:41.580 lasna    ArriveRequested    #8279618 0xd5ff391c
+22:33:41.721 base     Arrived            #58436947 0xd5ff391c
+  => LOOP move into base: full 3200 ms (block clock), 2653 ms (wall clock)
+22:33:43.210 lasna    MoveCompleted      #8279620 0xb14229df
+run 6/30: swap on unichain (down)
+22:33:59.840 unichain Swap               #67756847 0x265cdce7
+22:34:00.415 lasna    RecentreRequested  #8279636 0x265cdce7
+22:34:01.742 unichain Recentred          #67756849 0x265cdce7
+  => LOOP recentre into unichain: full 2000 ms (block clock), 1902 ms (wall clock)
+run 7/30: swap on base (up)
+22:34:23.700 base     Swap               #58437155 0x20bf7d63
+22:34:24.197 lasna    RecentreRequested  #8279659 0x20bf7d63
+22:34:24.197 lasna    MoveRequested      #8279659 0x20bf7d63
+22:34:24.677 base     Recentred          #58437161 0x20bf7d63
+  => LOOP recentre into base: full 1200 ms (block clock), 977 ms (wall clock)
+22:34:25.680 unichain Departed           #67756873 0x20bf7d63
+22:34:26.317 lasna    ArriveRequested    #8279661 0x26b5f0a2
+22:34:27.036 base     Arrived            #58437172 0x26b5f0a2
+  => LOOP move into base: full 3400 ms (block clock), 3336 ms (wall clock)
+22:34:27.756 lasna    MoveCompleted      #8279662 0xe638590a
+run 8/30: swap on unichain (up)
+22:34:46.757 unichain Swap               #67756894 0x31a840e9
+22:34:47.810 lasna    RecentreRequested  #8279681 0x31a840e9
+22:34:50.023 unichain Recentred          #67756897 0x31a840e9
+  => LOOP recentre into unichain: full 3000 ms (block clock), 3266 ms (wall clock)
+run 9/30: swap on base (down)
+22:35:14.189 base     Swap               #58437407 0x43284409
+22:35:16.139 lasna    RecentreRequested  #8279708 0x43284409
+22:35:16.139 lasna    MoveRequested      #8279708 0x43284409
+22:35:16.562 base     Recentred          #58437420 0x43284409
+  => LOOP recentre into base: full 2600 ms (block clock), 2373 ms (wall clock)
+22:35:17.793 unichain Departed           #67756925 0x43284409
+22:35:18.225 base     Arrived            #58437430 0x1a5fafc2
+22:35:18.322 lasna    ArriveRequested    #8279710 0x1a5fafc2
+  => LOOP move into base: full 4600 ms (block clock), 4037 ms (wall clock)
+22:35:19.341 lasna    MoveCompleted      #8279711 0xb92d1ff1
+run 10/30: swap on unichain (down)
+22:35:38.058 unichain Swap               #67756945 0x8c27772f
+22:35:38.933 lasna    RecentreRequested  #8279729 0x8c27772f
+22:35:41.017 unichain Recentred          #67756948 0x8c27772f
+  => LOOP recentre into unichain: full 3000 ms (block clock), 2959 ms (wall clock)
+run 11/30: swap on base (up)
+22:36:03.860 base     Swap               #58437656 0xb974477d
+22:36:05.289 lasna    RecentreRequested  #8279754 0xb974477d
+22:36:05.289 lasna    MoveRequested      #8279754 0xb974477d
+22:36:05.627 base     Recentred          #58437666 0xb974477d
+  => LOOP recentre into base: full 2000 ms (block clock), 1767 ms (wall clock)
+22:36:06.825 unichain Departed           #67756974 0xb974477d
+22:36:07.423 lasna    ArriveRequested    #8279756 0x84798e43
+22:36:08.000 base     Arrived            #58437676 0x84798e43
+  => LOOP move into base: full 4000 ms (block clock), 4140 ms (wall clock)
+22:36:08.391 lasna    MoveCompleted      #8279757 0x3cdb0fdb
+run 12/30: swap on unichain (up)
+22:36:26.168 unichain Swap               #67756993 0xa3c3cdd1
+22:36:26.538 lasna    RecentreRequested  #8279774 0xa3c3cdd1
+22:36:29.070 unichain Recentred          #67756996 0xa3c3cdd1
+  => LOOP recentre into unichain: full 3000 ms (block clock), 2902 ms (wall clock)
+run 13/30: swap on base (down)
+22:36:49.710 base     Swap               #58437886 0xc3d3290f
+22:36:50.129 lasna    RecentreRequested  #8279797 0xc3d3290f
+22:36:50.129 lasna    MoveRequested      #8279797 0xc3d3290f
+22:36:50.688 base     Recentred          #58437891 0xc3d3290f
+  => LOOP recentre into base: full 1000 ms (block clock), 978 ms (wall clock)
+22:36:52.005 unichain Departed           #67757019 0xc3d3290f
+22:36:52.167 lasna    ArriveRequested    #8279799 0xef4676fb
+22:36:53.062 base     Arrived            #58437901 0xef4676fb
+  => LOOP move into base: full 3000 ms (block clock), 3351 ms (wall clock)
+22:36:53.506 lasna    MoveCompleted      #8279800 0x18023610
+  (top-up: unichain vault total liquidity low, running Bootstrap with 50 test tokens per side)
+run 14/30: swap on unichain (down)
+22:37:20.117 unichain Recentred          #67757047 0x00000000
+22:37:36.908 unichain Swap               #67757064 0x25020f01
+22:37:37.285 lasna    RecentreRequested  #8279841 0x25020f01
+22:37:38.923 unichain Recentred          #67757066 0x25020f01
+  => LOOP recentre into unichain: full 2000 ms (block clock), 2015 ms (wall clock)
+run 15/30: swap on base (up)
+22:38:00.308 base     Swap               #58438238 0xc8ba997c
+22:38:01.014 lasna    RecentreRequested  #8279863 0xc8ba997c
+22:38:01.014 lasna    MoveRequested      #8279863 0xc8ba997c
+22:38:01.282 base     Recentred          #58438244 0xc8ba997c
+  => LOOP recentre into base: full 1200 ms (block clock), 974 ms (wall clock)
+22:38:03.142 unichain Departed           #67757090 0xc8ba997c
+22:38:03.514 lasna    ArriveRequested    #8279865 0x1b765b63
+22:38:03.604 base     Arrived            #58438255 0x1b765b63
+  => LOOP move into base: full 3400 ms (block clock), 3296 ms (wall clock)
+22:38:04.440 lasna    MoveCompleted      #8279866 0xd973fad0
+run 16/30: swap on unichain (up)
+22:38:22.708 lasna    RecentreRequested  #8279883 0x527b1602
+22:38:23.012 unichain Swap               #67757110 0x527b1602
+22:38:25.291 unichain Recentred          #67757112 0x527b1602
+  => LOOP recentre into unichain: full 2000 ms (block clock), 2280 ms (wall clock)
+run 17/30: swap on base (down)
+22:38:45.967 base     Swap               #58438468 0xfa583d73
+22:38:47.115 lasna    RecentreRequested  #8279905 0xfa583d73
+22:38:47.115 lasna    MoveRequested      #8279905 0xfa583d73
+22:38:47.616 base     Recentred          #58438475 0xfa583d73
+  => LOOP recentre into base: full 1400 ms (block clock), 1648 ms (wall clock)
+22:38:49.231 unichain Departed           #67757136 0xfa583d73
+22:38:49.226 lasna    ArriveRequested    #8279907 0x7f50af04
+22:38:49.994 base     Arrived            #58438486 0x7f50af04
+  => LOOP move into base: full 3600 ms (block clock), 4026 ms (wall clock)
+run 18/30: swap on unichain (down)
+22:38:51.323 lasna    MoveCompleted      #8279909 0x35883289
+22:39:10.181 unichain Swap               #67757157 0xe3a5734b
+22:39:10.354 lasna    RecentreRequested  #8279927 0xe3a5734b
+22:39:12.084 unichain Recentred          #67757159 0xe3a5734b
+  => LOOP recentre into unichain: full 2000 ms (block clock), 1904 ms (wall clock)
+run 19/30: swap on base (up)
+22:39:36.508 base     Swap               #58438718 0x0981fa6a
+22:39:37.393 lasna    RecentreRequested  #8279952 0x0981fa6a
+22:39:37.393 lasna    MoveRequested      #8279952 0x0981fa6a
+22:39:37.464 base     Recentred          #58438725 0x0981fa6a
+  => LOOP recentre into base: full 1400 ms (block clock), 956 ms (wall clock)
+22:39:39.281 unichain Departed           #67757186 0x0981fa6a
+22:39:39.413 lasna    ArriveRequested    #8279954 0xfe742f08
+22:39:39.880 base     Arrived            #58438736 0xfe742f08
+  => LOOP move into base: full 3600 ms (block clock), 3372 ms (wall clock)
+22:39:40.326 lasna    MoveCompleted      #8279955 0x422dbf2f
+run 20/30: swap on unichain (up)
+22:39:57.895 lasna    RecentreRequested  #8279971 0x8f720f4d
+22:39:58.113 unichain Swap               #67757205 0x8f720f4d
+22:40:00.373 unichain Recentred          #67757207 0x8f720f4d
+  => LOOP recentre into unichain: full 2000 ms (block clock), 2260 ms (wall clock)
+run 21/30: swap on base (down)
+22:40:20.939 base     Swap               #58438943 0xd0f75b87
+22:40:22.687 lasna    RecentreRequested  #8279994 0xd0f75b87
+22:40:22.687 lasna    MoveRequested      #8279994 0xd0f75b87
+22:40:23.273 base     Recentred          #58438953 0xd0f75b87
+  => LOOP recentre into base: full 2000 ms (block clock), 2334 ms (wall clock)
+22:40:24.806 lasna    ArriveRequested    #8279996 0x1703cdd8
+22:40:24.927 base     Arrived            #58438963 0x1703cdd8
+22:40:25.372 unichain Departed           #67757232 0xd0f75b87
+  => LOOP move into base: full 4000 ms (block clock), 3987 ms (wall clock)
+22:40:25.755 lasna    MoveCompleted      #8279997 0xcdff4af2
+run 22/30: swap on unichain (down)
+22:40:44.555 lasna    RecentreRequested  #8280015 0xdb7c8dc4
+22:40:45.414 unichain Swap               #67757252 0xdb7c8dc4
+22:40:47.276 unichain Recentred          #67757254 0xdb7c8dc4
+  => LOOP recentre into unichain: full 2000 ms (block clock), 1862 ms (wall clock)
+run 23/30: swap on base (up)
+22:41:08.460 base     Swap               #58439179 0x050c2888
+22:41:09.951 lasna    RecentreRequested  #8280039 0x050c2888
+22:41:09.951 lasna    MoveRequested      #8280039 0x050c2888
+22:41:10.136 base     Recentred          #58439188 0x050c2888
+  => LOOP recentre into base: full 1800 ms (block clock), 1676 ms (wall clock)
+22:41:12.090 lasna    ArriveRequested    #8280041 0x71de7cd9
+22:41:12.249 unichain Departed           #67757279 0x050c2888
+22:41:12.524 base     Arrived            #58439199 0x71de7cd9
+  => LOOP move into base: full 4000 ms (block clock), 4065 ms (wall clock)
+22:41:13.039 lasna    MoveCompleted      #8280042 0x09f283d5
+run 24/30: swap on unichain (up)
+22:41:29.628 lasna    RecentreRequested  #8280058 0xacb441e2
+22:41:30.392 unichain Swap               #67757297 0xacb441e2
+22:41:32.279 unichain Recentred          #67757299 0xacb441e2
+  => LOOP recentre into unichain: full 2000 ms (block clock), 1887 ms (wall clock)
+run 25/30: swap on base (down)
+22:41:55.212 base     Swap               #58439414 0x7823661b
+22:41:56.194 lasna    RecentreRequested  #8280083 0x7823661b
+22:41:56.194 lasna    MoveRequested      #8280083 0x7823661b
+22:41:56.215 base     Recentred          #58439420 0x7823661b
+  => LOOP recentre into base: full 1200 ms (block clock), 1003 ms (wall clock)
+22:41:57.978 unichain Departed           #67757325 0x7823661b
+22:41:58.347 lasna    ArriveRequested    #8280085 0x7fd22067
+22:41:58.595 base     Arrived            #58439431 0x7fd22067
+  => LOOP move into base: full 3400 ms (block clock), 3383 ms (wall clock)
+22:41:59.319 lasna    MoveCompleted      #8280086 0x76fe4a73
+  (top-up: unichain vault total liquidity low, running Bootstrap with 50 test tokens per side)
+run 26/30: swap on unichain (down)
+22:42:19.957 unichain Recentred          #67757347 0x00000000
+22:42:36.971 unichain Swap               #67757364 0xd0c3c86a
+22:42:37.281 lasna    RecentreRequested  #8280122 0xd0c3c86a
+22:42:39.905 unichain Recentred          #67757367 0xd0c3c86a
+  => LOOP recentre into unichain: full 3000 ms (block clock), 2934 ms (wall clock)
+run 27/30: swap on base (up)
+22:43:01.081 base     Swap               #58439742 0x926c2ee0
+22:43:02.863 lasna    RecentreRequested  #8280146 0x926c2ee0
+22:43:02.863 lasna    MoveRequested      #8280146 0x926c2ee0
+22:43:02.792 base     Recentred          #58439752 0x926c2ee0
+  => LOOP recentre into base: full 2000 ms (block clock), 1711 ms (wall clock)
+22:43:04.524 lasna    ArriveRequested    #8280148 0x80012cc4
+22:43:04.979 unichain Departed           #67757392 0x926c2ee0
+22:43:05.289 base     Arrived            #58439763 0x80012cc4
+  => LOOP move into base: full 4200 ms (block clock), 4208 ms (wall clock)
+run 28/30: swap on unichain (up)
+22:43:06.604 lasna    MoveCompleted      #8280150 0xd9e53efb
+22:43:22.823 lasna    RecentreRequested  #8280165 0x2d3eaf2b
+22:43:22.889 unichain Swap               #67757410 0x2d3eaf2b
+22:43:24.792 unichain Recentred          #67757412 0x2d3eaf2b
+  => LOOP recentre into unichain: full 2000 ms (block clock), 1903 ms (wall clock)
+run 29/30: swap on base (down)
+22:43:46.458 base     Swap               #58439968 0xaf04d6f8
+22:43:47.474 lasna    RecentreRequested  #8280188 0xaf04d6f8
+22:43:47.474 lasna    MoveRequested      #8280188 0xaf04d6f8
+22:43:47.454 base     Recentred          #58439976 0xaf04d6f8
+  => LOOP recentre into base: full 1600 ms (block clock), 996 ms (wall clock)
+22:43:48.512 unichain Departed           #67757436 0xaf04d6f8
+22:43:49.597 lasna    ArriveRequested    #8280190 0x68711aa8
+22:43:49.820 base     Arrived            #58439987 0x68711aa8
+  => LOOP move into base: full 3800 ms (block clock), 3363 ms (wall clock)
+run 30/30: swap on unichain (down)
+22:43:51.731 lasna    MoveCompleted      #8280192 0xa7bdbcef
+22:44:09.237 unichain Swap               #67757456 0xbbacff28
+22:44:10.141 lasna    RecentreRequested  #8280209 0xbbacff28
+22:44:12.171 unichain Recentred          #67757459 0xbbacff28
+  => LOOP recentre into unichain: full 3000 ms (block clock), 2934 ms (wall clock)
+recentre loops on base:
+  full, block clock                  n=15  median   1400 ms   p95   2600 ms   min 1000  max 2600
+  full, wall clock                   n=15  median   1003 ms   p95   2373 ms   min 955  max 2373
+  swap -> brain react (wall)         n=15  median   1016 ms   p95   1950 ms   min -45  max 1950
+  brain react -> callback (wall)     n=15  median    423 ms   p95   1014 ms   min -71  max 1014
+cross-chain moves into base:
+  full, block clock                  n=15  median   3600 ms   p95   4600 ms   min 3000  max 4600
+  full, wall clock                   n=15  median   3383 ms   p95   4208 ms   min 2653  max 4208
+  swapToMoveRequested (wall)         n=15  median   1016 ms   p95   1950 ms   min -45  max 1950
+  moveRequestedToDeparted (wall)     n=15  median   2116 ms   p95   2953 ms   min 1038  max 2953
+  departedToArriveRequested (wall)   n=15  median    162 ms   p95   1085 ms   min -566  max 1085
+  arriveRequestedToArrived (wall)    n=15  median    434 ms   p95    895 ms   min -97  max 895
+recentre loops on unichain:
+  full, block clock                  n=15  median   2000 ms   p95   3000 ms   min 2000  max 3000
+  full, wall clock                   n=15  median   2015 ms   p95   3266 ms   min 1857  max 3266
+  swap -> brain react (wall)         n=15  median    173 ms   p95   1052 ms   min -859  max 1052
+  brain react -> callback (wall)     n=15  median   2315 ms   p95   2721 ms   min 1327  max 2721
+vault top-ups during runs: 2

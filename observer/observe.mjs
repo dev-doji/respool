@@ -19,7 +19,8 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
-const RESULTS = join(ROOT, "results", "loops.jsonl");
+// RESULTS_FILE picks the output file (default results/loops.jsonl), so separate batches stay separate.
+const RESULTS = process.env.RESULTS_FILE ? join(ROOT, process.env.RESULTS_FILE) : join(ROOT, "results", "loops.jsonl");
 
 const TOPIC = {
   Swap: "0x40e9cecb9f5f1f1c5b9c97dec2917b7ee92e57ba5563708daca94dd84ad7112f",

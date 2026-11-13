@@ -15,14 +15,14 @@ Built for the Reactive hackathon track **Every Second Counts**. Full design: [do
 |---|---|
 | Spec and verified platform addresses | Written ([docs/SPEC.md](docs/SPEC.md)) |
 | `RespoolPolicy` decision rules | Done: 8 tests in `test/RespoolPolicy.t.sol`, including a fuzz test |
-| `RespoolToken` (test-only ERC-20) and `RespoolVault` | Done, tested locally: 13 tests in `test/RespoolVault.t.sol` against a real v4 PoolManager deployed in the test (recentre, depart, arrive, auth, duplicate and out-of-order callbacks, supply conserved across a move). Deployed on Base Sepolia and Unichain Sepolia |
+| `RespoolToken` (test-only ERC-20) and `RespoolVault` | Done, tested locally: 18 tests in `test/RespoolVault.t.sol` against a real v4 PoolManager deployed in the test (recentre, depart, arrive, auth, duplicate and out-of-order callbacks, supply conserved across a move, leftover tokens parked in a one-sided limit position instead of idle). Deployed on Base Sepolia and Unichain Sepolia |
 | `RespoolBrain` (reactive contract) | Done, tested locally: 15 unit tests in `test/RespoolBrain.t.sol` (subscriptions, recentre rule, move rule, arrive only for the in-flight move, auth) using a mock of the Reactive system contract. Deployed on Lasna |
 | End-to-end loop (**simulated**) | 3 tests in `test/RespoolLoop.t.sol`: real brain + two real vaults + a test relay standing in for Reactive Network. Shows recentre and a full cross-pool move. No real network, no timing |
 | Deploy scripts | Written ([docs/DEPLOY.md](docs/DEPLOY.md)). Full sequence rehearsed on local forks with `bash script/dryrun.sh` |
 | Live on testnets | **Lasna + Base Sepolia + Unichain Sepolia: deployed and working.** Recentre loops run on both chains; cross-chain moves (Unichain → Base) run live. One duplicate callback delivery was seen live and skipped by the vault |
-| Latency | **31 recentre loops and 9 cross-chain moves measured live** ([docs/LATENCY.md](docs/LATENCY.md)). Full loop, block clock: recentre on Base median 1.6 s (p95 3.0 s), recentre on Unichain median 2.0 s (p95 3.0 s, whole-second clock), move Unichain → Base median 3.8 s (p95 4.2 s). The batch did not include an Ethereum Sepolia baseline |
-| Latency observer | `observer/observe.mjs` (Node 18+, no dependencies): `run` drives swaps and records loops, `summary` prints median / p95 from `results/loops.jsonl` |
-| Known limits | Re-centring drains in-range liquidity (vault ends up one-sided); the driver topped vaults up 13 times with test tokens, logged in the results. In this batch moves only went toward Base. See LATENCY.md |
+| Latency | **Two live batches, 61 recentre loops and 24 cross-chain moves, every swap completed its loop** ([docs/LATENCY.md](docs/LATENCY.md)). Latest batch, full loop, block clock: recentre on Base median 1.4 s (p95 2.6 s), recentre on Unichain median 2.0 s (p95 3.0 s, whole-second clock), move Unichain → Base median 3.6 s (p95 4.6 s). No Ethereum Sepolia baseline yet |
+| Latency observer | `observer/observe.mjs` (Node 18+, no dependencies): `run` drives swaps and records loops, `summary` prints median / p95 (`RESULTS_FILE` picks the batch, default `results/loops.jsonl`) |
+| Known limits | After a full crossing a vault holds one token and cannot rebuild a two-sided position at the new price without an outside venue; leftover tokens now go into a one-sided limit position (top-ups fell from 13 to 2 between batches; the 2 were caused by moves emptying Unichain). Moves have only gone toward Base so far: the demand rule's direction is untuned. See LATENCY.md |
 
 ## Requirements
 
@@ -39,7 +39,7 @@ forge test
 ```
 
 If you cloned without `--recurse-submodules`, run `git submodule update --init --recursive` first.
-`forge test` currently runs 39 tests; all pass.
+`forge test` currently runs 44 tests; all pass.
 
 ## Layout
 

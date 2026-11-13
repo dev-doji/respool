@@ -75,6 +75,40 @@ legs are left in the raw data and excluded from the claims above.
   below 100 tokens; each top-up is logged in the raw data. A real vault would swap its idle inventory
   back toward 50/50; that is not built.
 
+## Batch 2: 30 swaps after the drain fix (2026-11-13)
+
+Same driver and settings as batch 1, against new vaults that park leftover tokens in a one-sided limit
+position (commit `d7d4bd7`). Same brain. Raw data: [results/loops-v2.jsonl](../results/loops-v2.jsonl),
+log: [results/run-2026-11-13-v2.log](../results/run-2026-11-13-v2.log). Reproduce with
+`RESULTS_FILE=results/loops-v2.jsonl node observer/observe.mjs summary`.
+
+**30 of 30 swaps completed a recentre loop. No callback failed or timed out.**
+
+| Loop | n | median | p95 | min | max |
+|---|---|---|---|---|---|
+| Recentre, Base Sepolia | 15 | **1.4 s** | 2.6 s | 1.0 s | 2.6 s |
+| Recentre, Unichain Sepolia | 15 | **2.0 s** | 3.0 s | 2.0 s | 3.0 s |
+| Cross-chain move, Unichain → Base | 15 | **3.6 s** | 4.6 s | 3.0 s | 4.6 s |
+
+Base wall-clock split: swap → brain `react()` median 1.0 s, brain → callback median 0.42 s.
+
+### Drain: before and after
+
+| | Batch 1 (old vault) | Batch 2 (limit position) |
+|---|---|---|
+| Top-ups needed | 13 (6 Base, 7 Unichain) | **2 (both Unichain)** |
+| Tokens left idle after a recentre | yes, the unused token | none (dust only), checked by `test_oscillation_keepsInventoryDeployed` |
+
+The two remaining top-ups are not the drain: all 15 moves went Unichain → Base and each move takes half
+of the source vault, so Unichain was emptied by design. The Base vault, which received every move,
+needed no top-up and ended with base liquidity 4.2e21 plus limit liquidity 3.0e22.
+
+**What the fix does not do:** a recentre happens only after price has left the range, at which point the
+base position is entirely one token. Without an outside venue to swap against (on these testnets the
+Respool pool is the only liquidity), the vault cannot rebuild a two-sided base right at the new price.
+The limit position keeps that inventory in the pool beside the price, and traders convert it back when
+price returns. Moves again only went toward Base; the demand rule's direction is still untuned.
+
 ## Deployment used
 
 | Contract | Chain | Address |
@@ -84,5 +118,10 @@ legs are left in the raw data and excluded from the claims above.
 | Respool pool id | Base Sepolia | `0xe2bd197c88d13a2345ada22ea1975f8ce3fde70f8419021cb3c825b37dfb6ad5` |
 | RespoolVault | Unichain Sepolia (1301) | `0x92D11779756817E2587E8d2C47A31B9BD282512C` |
 | Respool pool id | Unichain Sepolia | `0x2abcc1e957a54deb87829d1751acc0b7b7001f0cf5769e374da3c48363493c85` |
+
+Those vaults were used for sample 1 and batch 1. Batch 2 used the current vaults, listed in
+[deployments/84532.json](../deployments/84532.json) and [deployments/1301.json](../deployments/1301.json):
+Base Sepolia `0xA4ef330de4979fCc409E370DB6f2Ed559732891c`, Unichain Sepolia
+`0x4A89A9331D524E72E899741b9f1d1cAb596D53fc`.
 
 Full list: [deployments/](../deployments/).

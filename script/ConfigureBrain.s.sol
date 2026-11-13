@@ -25,6 +25,12 @@ contract ConfigureBrain is RespoolConfig {
             }
             string memory json = vm.readFile(path);
             require(vm.parseJsonAddress(json, ".brain") == address(brain), "vault bound to a different brain");
+            // Re-running configureChain would subscribe the same filters twice, so skip chains already set.
+            (,, address current,,,,,,,,,) = brain.chains(ids[i]);
+            if (current == vm.parseJsonAddress(json, ".vault")) {
+                console.log("skip (already configured):", ids[i]);
+                continue;
+            }
             brain.configureChain(
                 ids[i],
                 vm.parseJsonAddress(json, ".poolManager"),

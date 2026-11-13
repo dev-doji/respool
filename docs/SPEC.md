@@ -64,7 +64,13 @@ Library: `reactive-lib-omni` (Solidity `^0.8.29`).
   emitted by that vault.
 
 Still to verify on chain before relying on it: the v4 `Swap` event signature on these deployments,
-end-to-end callback delivery on both testnets, and whether Lasna supports `cancun`.
+end-to-end callback delivery on both testnets, whether Lasna supports `cancun`, and that `subscribe()`
+works when called after deployment (the brain subscribes in `configureChain`, not in its constructor,
+because the vaults need the brain's address first).
+
+Deployment order: brain (Lasna) → tokens, pool and vault on each chain (vault takes the brain's address)
+→ `brain.configureChain` for each chain → `vault.bootstrap` (the brain learns the opening range from
+its `Recentred` event).
 
 ## 4. Contracts
 
@@ -126,7 +132,7 @@ Stretch: a v4 hook emitting `DepthLow` as an extra trigger.
 |---|---|
 | Nov 15 | Foundry builds; `RespoolPolicy` unit tests green (done Nov 13) |
 | Nov 19 | Tokens + vault: recentre and depart/arrive tested against a PoolManager (done Nov 13, local PoolManager rather than a fork) |
-| Nov 23 | Brain deployed on Lasna; same-chain recentre loop live on Unichain Sepolia; first latency number |
+| Nov 23 | Brain deployed on Lasna; same-chain recentre loop live on Unichain Sepolia; first latency number (brain written and tested locally Nov 13, with a simulated end-to-end loop) |
 | Nov 27 | Base Sepolia added; cross-chain move live |
 | Dec 1 | Observer + latency report (30+ loops), dashboard |
 | Dec 4 | README, demo video, submission |

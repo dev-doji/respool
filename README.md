@@ -15,12 +15,14 @@ Built for the Reactive hackathon track **Every Second Counts**. Full design: [do
 |---|---|
 | Spec and verified platform addresses | Written ([docs/SPEC.md](docs/SPEC.md)) |
 | `RespoolPolicy` decision rules | Done: 8 tests in `test/RespoolPolicy.t.sol`, including a fuzz test |
-| `RespoolToken` (test-only ERC-20) and `RespoolVault` | Done, tested locally: 13 tests in `test/RespoolVault.t.sol` against a real v4 PoolManager deployed in the test (recentre, depart, arrive, auth, duplicate and out-of-order callbacks, supply conserved across a move). Deployed on Base Sepolia |
+| `RespoolToken` (test-only ERC-20) and `RespoolVault` | Done, tested locally: 13 tests in `test/RespoolVault.t.sol` against a real v4 PoolManager deployed in the test (recentre, depart, arrive, auth, duplicate and out-of-order callbacks, supply conserved across a move). Deployed on Base Sepolia and Unichain Sepolia |
 | `RespoolBrain` (reactive contract) | Done, tested locally: 15 unit tests in `test/RespoolBrain.t.sol` (subscriptions, recentre rule, move rule, arrive only for the in-flight move, auth) using a mock of the Reactive system contract. Deployed on Lasna |
 | End-to-end loop (**simulated**) | 3 tests in `test/RespoolLoop.t.sol`: real brain + two real vaults + a test relay standing in for Reactive Network. Shows recentre and a full cross-pool move. No real network, no timing |
 | Deploy scripts | Written ([docs/DEPLOY.md](docs/DEPLOY.md)). Full sequence rehearsed on local forks with `bash script/dryrun.sh` |
-| Live on testnets | **Lasna + Base Sepolia: deployed and working.** Brain receives Base Sepolia events and its recentre callback executed on the Base vault. Unichain Sepolia: not deployed yet (no testnet ETH). The cross-chain move needs both chains, so it has not run live yet |
-| Latency | **One live sample: 1.4 s** full loop (Base swap to Base callback, 7 blocks), from Base millisecond block timestamps ([docs/LATENCY.md](docs/LATENCY.md)). Per-leg split and 30+ sample statistics not done yet |
+| Live on testnets | **Lasna + Base Sepolia + Unichain Sepolia: deployed and working.** Recentre loops run on both chains; cross-chain moves (Unichain → Base) run live. One duplicate callback delivery was seen live and skipped by the vault |
+| Latency | **31 recentre loops and 9 cross-chain moves measured live** ([docs/LATENCY.md](docs/LATENCY.md)). Full loop, block clock: recentre on Base median 1.6 s (p95 3.0 s), recentre on Unichain median 2.0 s (p95 3.0 s, whole-second clock), move Unichain → Base median 3.8 s (p95 4.2 s). The batch did not include an Ethereum Sepolia baseline |
+| Latency observer | `observer/observe.mjs` (Node 18+, no dependencies): `run` drives swaps and records loops, `summary` prints median / p95 from `results/loops.jsonl` |
+| Known limits | Re-centring drains in-range liquidity (vault ends up one-sided); the driver topped vaults up 13 times with test tokens, logged in the results. In this batch moves only went toward Base. See LATENCY.md |
 
 ## Requirements
 
@@ -57,6 +59,8 @@ script/RespoolConfig.sol     per-chain addresses (checked on chain) and brain se
 script/*.s.sol               DeployBrain, DeployChain, ConfigureBrain, Bootstrap, Swap
 script/dryrun.sh             rehearse all scripts on local forks (needs anvil)
 deployments/                 addresses written by the scripts, one JSON per chain
+observer/observe.mjs         live latency observer and swap driver
+results/                     raw loop records (loops.jsonl) and run logs
 docs/SPEC.md                 design, verified addresses, latency method, milestones
 docs/DEPLOY.md               testnet deployment steps, funding, faucets
 docs/LATENCY.md              live latency measurements with tx hashes

@@ -285,7 +285,7 @@ contract RespoolBrainTest is Test {
 
     function _burstParams() internal {
         RespoolBrain.Params memory p = _params();
-        p.minHotDemand = 15 ether; // a single 10-token swap is not a trend
+        p.minHotDemand = 2.5 ether; // about 2.5 recent swaps: a single swap is not a trend
         brain.setParams(p);
     }
 
@@ -300,6 +300,22 @@ contract RespoolBrainTest is Test {
             bn += 20;
             vm.roll(bn);
             _swap(i % 2 == 0 ? U : B, 10 ether, 0);
+        }
+        assertEq(_departsTo(VAULT_U) + _departsTo(VAULT_B), 0);
+    }
+
+    /// Batch 3 found volume tracked pool depth: the deeper pool traded more per swap and kept winning.
+    /// Demand now counts swaps, so 100-token swaps on one chain and 1-token swaps on the other score level.
+    function test_swapSize_doesNotDecideDirection() public {
+        _bootstrapBoth();
+        _burstParams();
+        uint256 bn = 1000;
+        vm.roll(bn);
+        for (uint256 i = 0; i < 20; i++) {
+            bn += 20;
+            vm.roll(bn);
+            if (i % 2 == 0) _swap(U, 100 ether, 0);
+            else _swap(B, 1 ether, 0);
         }
         assertEq(_departsTo(VAULT_U) + _departsTo(VAULT_B), 0);
     }
@@ -332,7 +348,10 @@ contract RespoolBrainTest is Test {
 
     function test_noMove_belowNoiseFloor() public {
         _bootstrapBoth();
-        _swap(U, 0.5 ether, 0); // demand 0.5 ether < 1 ether floor
+        RespoolBrain.Params memory p = _params();
+        p.minHotDemand = 2 ether;
+        brain.setParams(p);
+        _swap(U, 10 ether, 0); // one swap = 1e18 of demand, below the 2e18 floor
         assertEq(sys.callbackCount(), 0);
     }
 

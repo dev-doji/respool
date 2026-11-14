@@ -30,7 +30,7 @@ contract RespoolBrain is AbstractReactive {
         int24 tickUpper;
         uint128 liquidity;
         bool hasRange;
-        uint256 demand; // recent swap volume, decayed by Reactive blocks elapsed
+        uint256 demand; // recent swap count (1e18 per swap), decayed by Reactive blocks elapsed
         uint256 demandBlock; // block at which `demand` was last brought up to date
         uint64 recentreSeq;
         bool recentrePending;
@@ -40,7 +40,7 @@ contract RespoolBrain is AbstractReactive {
     struct Params {
         uint32 demandHalfLifeBlocks; // demand halves after this many Reactive blocks without new swaps
         uint32 ratioBps; // hot/cold demand ratio that triggers a move (30_000 = 3x)
-        uint256 minHotDemand; // ignore demand below this
+        uint256 minHotDemand; // ignore demand below this (1e18 = one recent swap)
         uint256 cooldownBlocks; // Reactive blocks between moves
         uint256 pendingTimeoutBlocks; // re-allow a recentre if the last one never reported back
         uint16 shareBps; // share of the cold position to move
@@ -68,6 +68,9 @@ contract RespoolBrain is AbstractReactive {
     uint256 internal immutable RECENTRED_TOPIC = uint256(RespoolVault.Recentred.selector);
     uint256 internal immutable DEPARTED_TOPIC = uint256(RespoolVault.Departed.selector);
     uint256 internal immutable ARRIVED_TOPIC = uint256(RespoolVault.Arrived.selector);
+    /// Demand added per swap. `minHotDemand` is in the same unit (2e18 = about two recent swaps).
+    uint256 internal constant SWAP_UNIT = 1e18;
+
     uint256 internal immutable SKIPPED_TOPIC = uint256(RespoolVault.CallbackSkipped.selector);
 
     address public immutable owner;
@@ -199,14 +202,16 @@ contract RespoolBrain is AbstractReactive {
     }
 
     function _onSwap(uint256 chainId, Chain storage c, bytes calldata data, bytes32 trigger) internal {
-        (int128 amount0,,,, int24 tick,) = abi.decode(data, (int128, int128, uint160, uint128, int24, uint24));
+        (,,,, int24 tick,) = abi.decode(data, (int128, int128, uint160, uint128, int24, uint24));
         c.lastTick = tick;
 
-        // Demand is recent swap volume that fades with time. Both chains are brought up to date with the same
-        // elapsed time on every swap, so balanced trading keeps them level and only a real shift tips the ratio.
+        // Demand is recent swap ACTIVITY (each swap counts as one unit) that fades with time. Volume is not used:
+        // a price-limited swap trades whatever liquidity sits in its path, so volume measures the pool's own depth
+        // and made the rule chase its own liquidity (seen live). Both chains decay by the same elapsed time, so
+        // balanced trading keeps them level and only a real shift in activity tips the ratio.
         uint256 otherId = _other(chainId);
         _decayDemand(c);
-        c.demand += RespoolPolicy.absAmount(amount0);
+        c.demand += SWAP_UNIT;
         if (otherId != 0) _decayDemand(chains[otherId]);
 
         _maybeRecentre(chainId, c, tick, trigger);

@@ -45,7 +45,7 @@ abstract contract RespoolConfig is Script {
         return RespoolBrain.Params({
             demandHalfLifeBlocks: 60, // demand halves after about a minute without swaps
             ratioBps: 30_000, // busy chain needs 3x the quiet chain's demand (balanced trading sits near 1.3x)
-            minHotDemand: 1 ether,
+            minHotDemand: 2 ether, // about two recent swaps: one swap alone is not a trend
             cooldownBlocks: 30, // about 30 s on Lasna
             pendingTimeoutBlocks: 60,
             shareBps: 5_000, // move half of the quiet chain's position

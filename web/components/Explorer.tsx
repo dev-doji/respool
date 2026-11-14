@@ -193,7 +193,7 @@ export function Explorer() {
 
         <div className="plot">
           <h3>Every loop, one dot each</h3>
-          <p className="cap">click a dot to replay it above. the yellow line is the median, the dashed red line is p95.</p>
+          <p className="cap">click a dot to replay it above. the green line is the median, the dashed red line is p95.</p>
           <div>
             {KINDS.map((k) => {
               const ls = D.loops.filter(k.test);
@@ -230,8 +230,8 @@ export function Explorer() {
           <div className="scale"><span /><div>{arr(6).map((s) => <span key={s}>{s} s</span>)}</div></div>
           <div className="legend">
             <span><i style={{ background: "var(--ink)" }} />one loop</span>
-            <span><i style={{ background: "var(--hl)", border: "1px solid var(--ink)" }} />selected</span>
-            <span><i style={{ borderLeft: "2px solid var(--hl)", width: 0, height: 11 }} />median</span>
+            <span><i style={{ background: "var(--accent)", border: "1px solid var(--ink)" }} />selected</span>
+            <span><i style={{ borderLeft: "2px solid var(--accent-deep)", width: 0, height: 11 }} />median</span>
             <span><i style={{ borderLeft: "1px dashed var(--bad)", width: 0, height: 11 }} />p95</span>
           </div>
         </div>

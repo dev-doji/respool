@@ -61,7 +61,7 @@ export function Hero() {
           <Comb seed={3} className="comb" />
           <p className="art-word">respool</p>
         </div>
-        <div className="tile t-cream">
+        <div className="tile t-mint">
           <p className="cap">vault · base sepolia</p>
           <span className={`stamp${fixed ? " ok" : ""}`}>{fixed ? "RECENTRED" : "OUT OF RANGE"}</span>
           <p className="cap dim">re-centred by a reactive callback</p>

@@ -9,7 +9,7 @@ export function Nav() {
         <a className="pnav-logo" href="#top" aria-label="Respool, back to top">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <path d="M12 2.5l8 4.6v9.8l-8 4.6-8-4.6V7.1z" stroke="#fff" strokeWidth="1.6" />
-            <path d="M12 8l3.4 2v4L12 16l-3.4-2v-4z" fill="#f5c451" />
+            <path d="M12 8l3.4 2v4L12 16l-3.4-2v-4z" fill="#2ed3a2" />
           </svg>
         </a>
         <a className="pnav-name" href="#top">Respool</a>

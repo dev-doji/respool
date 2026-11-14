@@ -57,7 +57,7 @@ function VaultCard({ chain, r }: { chain: "base" | "unichain"; r?: Result<VaultS
       <p className="cap dim">
         liquidity in units of 10¹⁸. red line: price.
         {hasBase ? ` dark bar: balanced base position (${fmtTick(v.tl)} to ${fmtTick(v.tu)}).` : " no balanced base position right now: the vault is holding one token and has parked it beside the price."}
-        {hasLimit ? " yellow bar: limit position." : ""}
+        {hasLimit ? " green bar: limit position." : ""}
       </p>
     </div>
   );

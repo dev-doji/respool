@@ -33,7 +33,7 @@ const LIMITS: { cls: string; title: string; body: string }[] = [
   { cls: "ink", title: "A move takes seconds", body: "A burst of trading shorter than a move is over before the liquidity arrives. That bounds what this can chase." },
   { cls: "", title: "Clock resolution", body: "Base Sepolia reports milliseconds. Unichain Sepolia and Lasna report whole seconds, so their times are ±1 s." },
   { cls: "", title: "One-sided after a crossing", body: "When price runs through a position the vault holds one token. A limit position parks it beside the price instead of leaving it idle." },
-  { cls: "honey", title: "No baseline yet", body: "A run with Ethereum Sepolia as the origin chain, to show what a slow origin costs, is still to do." },
+  { cls: "accent", title: "No baseline yet", body: "A run with Ethereum Sepolia as the origin chain, to show what a slow origin costs, is still to do." },
 ];
 
 export function Limits() {
@@ -46,7 +46,7 @@ export function Limits() {
       <div className="bento">
         {LIMITS.map((l, i) => (
           <div key={l.title} className={`card ${l.cls}`}>
-            <span className="num" style={l.cls === "ink" ? { color: "#8d8da6" } : l.cls === "honey" ? { color: "#44360d" } : undefined}>{String(i + 1).padStart(2, "0")}</span>
+            <span className="num" style={l.cls === "ink" ? { color: "#8d8da6" } : l.cls === "accent" ? { color: "#0a3d2e" } : undefined}>{String(i + 1).padStart(2, "0")}</span>
             <h3 style={{ marginTop: "auto" }}>{l.title}</h3>
             <p>{l.body}</p>
           </div>

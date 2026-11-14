@@ -7,3 +7,4 @@ broadcast/*/31337/
 node_modules/
 deployments/dryrun/
 broadcast/
+.claude/

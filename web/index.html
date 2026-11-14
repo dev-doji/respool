@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Respool: liquidity that moves to where it's needed</title>
+  <meta name="description" content="One reactive contract watches Uniswap v4 pools on Unichain Sepolia and Base Sepolia, re-centres positions that fall out of range, and moves liquidity to the busy chain. Testnet, with measured latency.">
+  <meta name="theme-color" content="#f7f7fa">
+  <script>document.documentElement.className += " js";</script>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%2316162a'/%3E%3Cpath d='M16 6l8.7 5v10L16 26l-8.7-5V11z' fill='%23f5c451'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="pnav-shell wrap">
+  <nav class="pnav" aria-label="Main">
+    <a class="pnav-logo" href="#top" aria-label="Respool, back to top">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 2.5l8 4.6v9.8l-8 4.6-8-4.6V7.1z" stroke="#fff" stroke-width="1.6"/><path d="M12 8l3.4 2v4L12 16l-3.4-2v-4z" fill="#f5c451"/></svg>
+    </a>
+    <a class="pnav-name" href="#top">Respool</a>
+    <div class="pnav-line" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+    <div class="pnav-links">
+      <a href="#how">How it works</a><a href="#loop">The loop</a><a href="#latency">Latency</a><a href="#vaults">Vaults</a>
+      <a href="https://github.com/dev-doji/respool" rel="noopener">GitHub</a>
+    </div>
+    <a class="pbtn dark small" href="#vaults">See it live
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+  </nav>
+</header>
+
+<main id="main" class="wrap">
+  <!-- ---------------- hero ---------------- -->
+  <section class="hero" id="top" aria-labelledby="h1">
+    <div class="hero-text">
+      <p class="cap">liquidity that follows demand</p>
+      <h1 id="h1"><span class="line">Liquidity</span><span class="line">where it's</span><span class="line"><mark>needed.</mark></span><span class="line ghost">Across chains, in seconds.</span></h1>
+      <p class="lead">One reactive contract watches Uniswap v4 pools on Unichain Sepolia and Base Sepolia. When a position falls out of range it re-centres it. When trading shifts to the other chain, it moves liquidity there. No keeper server to run.</p>
+      <div class="cta">
+        <a class="pbtn dark" href="#loop">Replay a real loop
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+        <a class="pbtn" href="#latency">Read the numbers</a>
+      </div>
+      <div class="stat">
+        <div class="stat-top"><b data-bind="moveMedian">3.4s</b><span class="rule"></span></div>
+        <p class="cap" data-bind="moveCap">median cross-chain move</p>
+        <div class="tags"><span class="tag solid"><span class="live-dot"></span>Live on testnet</span><span class="tag">Reactive Lasna</span><span class="tag">Unichain Sepolia</span><span class="tag">Base Sepolia</span></div>
+      </div>
+    </div>
+
+    <div class="collage" aria-hidden="true">
+      <div class="tile t-sky">
+        <p class="cap">swap · base sepolia</p>
+        <p>Price moves <span class="hit">tick 0 → −600</span>, past the vault range of −120 to 180.</p>
+        <p class="cap dim">seen by the reactive contract on lasna</p>
+      </div>
+      <div class="tile t-ink">
+        <svg class="comb" id="comb-hero" viewBox="0 0 220 250"></svg>
+        <p class="art-word">respool</p>
+      </div>
+      <div class="tile t-cream">
+        <p class="cap">vault · base sepolia</p>
+        <span class="stamp" id="stamp">OUT OF RANGE</span>
+        <p class="cap dim">re-centred by a reactive callback</p>
+      </div>
+      <a class="tile t-pill" href="#loop" id="pill-move">
+        <span class="bigic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 8h14M14 4l4 4-4 4M20 16H6M10 12l-4 4 4 4"/></svg></span>
+        <span><b id="pill-title">Liquidity moved across chains</b><span class="mono" id="pill-sub">recorded live on testnet</span></span>
+      </a>
+      <div class="spin-badge">
+        <svg class="ring" viewBox="0 0 112 112"><defs><path id="circ" d="M56,56 m-42,0 a42,42 0 1,1 84,0 a42,42 0 1,1 -84,0"/></defs><text><textPath href="#circ" textLength="258" lengthAdjust="spacing">TESTNET ONLY · TEST TOKENS ·</textPath></text></svg>
+        <span class="core"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 3v18M3 12h18"/></svg></span>
+      </div>
+    </div>
+  </section>
+
+  <div class="built" aria-label="Built on">
+    <span class="cap">built on</span>
+    <div class="marks"><span>Reactive Network</span><span>Uniswap v4</span><span>Unichain Sepolia</span><span>Base Sepolia</span></div>
+  </div>
+
+  <!-- ---------------- how ---------------- -->
+  <section class="sec rise" id="how" aria-labelledby="how-h">
+    <div class="sec-head"><h2 id="how-h">Watch. Decide. <span class="ghost">Act.</span></h2><p class="cap">three jobs, one contract on reactive, two vaults on the chains</p></div>
+    <ol class="steps">
+      <li><span class="snum">1</span><h3>Watch</h3><p>The brain subscribes to swap events from the Respool pool on both chains, and to each vault's own events.</p></li>
+      <li><span class="snum">2</span><h3>Decide</h3><p>A swap that leaves a vault's range asks for a re-centre. Recent swap activity three times higher on one chain asks for a move.</p></li>
+      <li><span class="snum">3</span><h3>Act</h3><p>Reactive delivers a callback. The vault re-centres its position, or burns tokens here so the same amount can be minted on the other chain.</p></li>
+    </ol>
+  </section>
+
+  <!-- ---------------- loop player ---------------- -->
+  <section class="sec rise" id="loop" aria-labelledby="loop-h">
+    <div class="sec-head"><h2 id="loop-h">Event. Reactive. <span class="ghost">Callback.</span></h2><p class="cap">every loop here is a real one, recorded on testnet. pick one and replay it.</p></div>
+    <div class="player">
+      <div class="player-bar">
+        <div class="seg" role="group" aria-label="Loop type" id="seg-kind"></div>
+        <div class="ctrls">
+          <div class="stepper">
+            <button class="icon-btn" id="prev" aria-label="Previous loop"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15 6l-6 6 6 6"/></svg></button>
+            <span id="which" aria-live="polite">Loop 1 of 1</span>
+            <button class="icon-btn" id="next" aria-label="Next loop"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 6l6 6-6 6"/></svg></button>
+          </div>
+          <div class="seg" role="group" aria-label="Playback speed" id="seg-speed"></div>
+          <button class="pbtn dark small" id="replay">Replay</button>
+        </div>
+      </div>
+      <div class="stage">
+        <div class="clock"><b id="clock" aria-hidden="true">0.00</b><span class="mono">seconds since the swap</span></div>
+        <div class="track" aria-hidden="true"><div class="fill" id="fill"></div></div>
+        <ol class="nodes" id="nodes"></ol>
+        <p class="sr-only" id="loop-sr" aria-live="polite"></p>
+      </div>
+      <div class="player-foot"><span class="cap" id="loop-total">full loop</span><span class="cap dim" id="loop-note"></span></div>
+    </div>
+  </section>
+
+  <!-- ---------------- latency ---------------- -->
+  <section class="sec rise" id="latency" aria-labelledby="lat-h">
+    <div class="sec-head"><h2 id="lat-h">Seconds, <span class="ghost">measured.</span></h2><p class="cap">median and p95 for the current batch. full-loop time from the chains' own block timestamps.</p></div>
+    <div class="bento" id="lat-cards"></div>
+    <div class="plot">
+      <h3>Every loop, one dot each</h3>
+      <p class="cap">click a dot to replay it above. the yellow line is the median, the dashed red line is p95.</p>
+      <div id="plot-rows"></div>
+      <div class="scale"><span></span><div id="scale"></div></div>
+      <div class="legend"><span><i style="background:var(--ink)"></i>one loop</span><span><i style="background:var(--hl);border:1px solid var(--ink)"></i>selected</span><span><i style="border-left:2px solid var(--hl);width:0;height:11px"></i>median</span><span><i style="border-left:1px dashed var(--bad);width:0;height:11px"></i>p95</span></div>
+    </div>
+    <details class="more">
+      <summary>All four batches, as a table <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></summary>
+      <div class="tablewrap"><table id="batch-table"></table></div>
+    </details>
+    <p class="cap" style="margin-top:14px;max-width:760px">Unichain Sepolia timestamps are whole seconds, so its numbers carry ±1 s. Five moves is a small sample. There is no Ethereum Sepolia baseline yet. Earlier batches moved liquidity one way only; the rule was reworked, and the table shows that history rather than hiding it.</p>
+  </section>
+
+  <!-- ---------------- vaults ---------------- -->
+  <section class="sec rise" id="vaults" aria-labelledby="vault-h">
+    <div class="sec-head"><h2 id="vault-h">Where the <span class="ghost">liquidity is.</span></h2><p class="cap">read from the chains by your browser, right now. if a node is unreachable it says so, and you can retry.</p></div>
+    <div class="status" style="margin-bottom:14px">
+      <span class="tag" id="live-tag"><span class="live-dot off"></span><span id="live-text">Connecting…</span></span>
+      <button class="pbtn small" id="refresh">Refresh</button>
+      <span class="cap dim" id="updated"></span>
+    </div>
+    <div class="vaults" id="vault-cards"></div>
+    <div class="split">
+      <div class="status" style="justify-content:space-between"><span class="sub">Liquidity split</span><span class="cap dim" id="split-note"></span></div>
+      <div class="split-bar" role="img" aria-label="Liquidity share between Base Sepolia and Unichain Sepolia" id="split-bar"><i class="b" style="width:50%"></i><i class="u" style="width:50%"></i></div>
+      <div class="split-lab"><span id="split-b">Base Sepolia</span><span id="split-u">Unichain Sepolia</span></div>
+    </div>
+  </section>
+
+  <!-- ---------------- limits ---------------- -->
+  <section class="sec rise" id="limits" aria-labelledby="lim-h">
+    <div class="sec-head"><h2 id="lim-h">What it <span class="ghost">is not.</span></h2><p class="cap">stated up front, so nobody has to guess</p></div>
+    <div class="bento">
+      <div class="card sky"><span class="num">01</span><h3 style="margin-top:auto">Test tokens</h3><p>Moved liquidity is Respool's own test tokens, burned on one chain and minted on the other. There is no real bridge and no real money.</p></div>
+      <div class="card"><span class="num">02</span><h3 style="margin-top:auto">Scripted traffic</h3><p>Every swap in these runs came from my own script, evenly spaced. The move rule has not yet met real trading.</p></div>
+      <div class="card ink"><span class="num" style="color:#8d8da6">03</span><h3 style="margin-top:auto">A move takes seconds</h3><p>A burst of trading shorter than a move is over before the liquidity arrives. That bounds what this can chase.</p></div>
+      <div class="card"><span class="num">04</span><h3 style="margin-top:auto">Clock resolution</h3><p>Base Sepolia reports milliseconds. Unichain Sepolia and Lasna report whole seconds, so their times are ±1 s.</p></div>
+      <div class="card"><span class="num">05</span><h3 style="margin-top:auto">One-sided after a crossing</h3><p>When price runs through a position the vault holds one token. A limit position parks it beside the price instead of leaving it idle.</p></div>
+      <div class="card honey"><span class="num" style="color:#44360d">06</span><h3 style="margin-top:auto">No baseline yet</h3><p>A run with Ethereum Sepolia as the origin chain, to show what a slow origin costs, is still to do.</p></div>
+    </div>
+  </section>
+
+  <!-- ---------------- proof ---------------- -->
+  <section class="sec rise" id="proof" aria-labelledby="proof-h">
+    <div class="sec-head"><h2 id="proof-h">On chain, <span class="ghost">checkable.</span></h2><p class="cap">the contracts these numbers came from</p></div>
+    <div class="proofs" id="proofs"></div>
+  </section>
+
+  <!-- ---------------- band ---------------- -->
+  <section class="band rise" aria-labelledby="run-h">
+    <svg class="band-comb comb" id="comb-band" viewBox="0 0 220 250" aria-hidden="true"></svg>
+    <h2 id="run-h">Run it <span>yourself.</span></h2>
+    <pre class="code" id="code" tabindex="0" aria-label="Setup commands"><button class="pbtn small copy" id="copy" type="button">Copy</button><span class="c"># needs Foundry and Node 18+</span>
+<span class="p">$ </span>git clone https://github.com/dev-doji/respool.git
+<span class="p">$ </span>cd respool
+<span class="p">$ </span>git submodule update --init
+<span class="p">$ </span>git -C lib/v4-core submodule update --init lib/solmate
+<span class="p">$ </span>forge test         <span class="c"># 48 tests</span>
+<span class="p">$ </span>node observer/observe.mjs summary</pre>
+  </section>
+
+  <footer class="foot"><span>Respool · every second counts</span><span id="foot-gen">testnet only</span></footer>
+</main>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

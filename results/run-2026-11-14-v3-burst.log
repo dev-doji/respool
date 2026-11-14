@@ -1,0 +1,205 @@
+run 1/24: swap on unichain (down)
+18:59:24.091 unichain Swap               #67830372 0xc0074083
+18:59:24.991 lasna    RecentreRequested  #8348898 0xc0074083
+18:59:24.991 lasna    MoveRequested      #8348898 0xc0074083
+18:59:24.959 base     Departed           #58804666 0xc0074083
+18:59:25.906 lasna    ArriveRequested    #8348899 0x3193aa06
+18:59:25.925 unichain Recentred          #67830374 0xc0074083
+  => LOOP recentre into unichain: full 2000 ms (block clock), 1834 ms (wall clock)
+18:59:27.152 unichain Arrived            #67830375 0x3193aa06
+  => LOOP move into unichain: full 3000 ms (block clock), 3061 ms (wall clock)
+18:59:27.900 lasna    MoveCompleted      #8348901 0xcd3ac6c9
+run 2/24: swap on unichain (up)
+[unichain] eth_getLogs: block range extends beyond current head block
+18:59:44.997 unichain Swap               #67830393 0xac1f4c9b
+18:59:45.359 lasna    RecentreRequested  #8348918 0xac1f4c9b
+18:59:46.876 unichain Recentred          #67830395 0xac1f4c9b
+  => LOOP recentre into unichain: full 2000 ms (block clock), 1879 ms (wall clock)
+[unichain] eth_getLogs: block range extends beyond current head block
+run 3/24: swap on unichain (down)
+19:00:07.806 lasna    RecentreRequested  #8348939 0x52be573b
+19:00:07.806 lasna    MoveRequested      #8348939 0x52be573b
+19:00:07.869 unichain Swap               #67830416 0x52be573b
+[unichain] eth_getLogs: block range extends beyond current head block
+19:00:08.422 base     Departed           #58804882 0x52be573b
+19:00:08.687 lasna    ArriveRequested    #8348940 0x010cf9a2
+19:00:09.307 unichain Recentred          #67830417 0x52be573b
+  => LOOP recentre into unichain: full 1000 ms (block clock), 1438 ms (wall clock)
+[unichain] eth_getLogs: block range extends beyond current head block
+19:00:10.588 lasna    MoveCompleted      #8348942 0x7a0b058b
+19:00:11.364 unichain Arrived            #67830419 0x010cf9a2
+  => LOOP move into unichain: full 3000 ms (block clock), 3496 ms (wall clock)
+run 4/24: swap on unichain (up)
+[unichain] eth_getLogs: block range extends beyond current head block
+[unichain] eth_getLogs: block range extends beyond current head block
+19:00:27.850 lasna    RecentreRequested  #8348958 0x04bb4924
+19:00:27.860 unichain Swap               #67830436 0x04bb4924
+[unichain] eth_getLogs: block range extends beyond current head block
+19:00:29.928 unichain Recentred          #67830438 0x04bb4924
+  => LOOP recentre into unichain: full 2000 ms (block clock), 2068 ms (wall clock)
+[unichain] eth_getLogs: block range extends beyond current head block
+run 5/24: swap on unichain (down)
+[unichain] eth_getLogs: block range extends beyond current head block
+19:00:48.857 lasna    RecentreRequested  #8348978 0xa7499699
+19:00:48.857 lasna    MoveRequested      #8348978 0xa7499699
+19:00:48.923 unichain Swap               #67830457 0xa7499699
+19:00:49.261 base     Departed           #58805088 0xa7499699
+[unichain] eth_getLogs: block range extends beyond current head block
+19:00:50.245 lasna    ArriveRequested    #8348979 0x9e80f563
+19:00:51.044 unichain Recentred          #67830459 0xa7499699
+  => LOOP recentre into unichain: full 2000 ms (block clock), 2121 ms (wall clock)
+19:00:51.911 unichain Arrived            #67830460 0x9e80f563
+  => LOOP move into unichain: full 3000 ms (block clock), 2988 ms (wall clock)
+19:00:52.319 lasna    MoveCompleted      #8348981 0x1422bc63
+[unichain] eth_getLogs: block range extends beyond current head block
+run 6/24: swap on unichain (up)
+19:01:10.093 unichain Swap               #67830478 0x60714e5d
+19:01:10.363 lasna    RecentreRequested  #8348997 0x60714e5d
+19:01:11.949 unichain Recentred          #67830480 0x60714e5d
+  => LOOP recentre into unichain: full 2000 ms (block clock), 1855 ms (wall clock)
+[unichain] eth_getLogs: block range extends beyond current head block
+  (top-up: base vault total liquidity low, running Bootstrap with 50 test tokens per side)
+run 7/24: swap on base (down)
+19:01:44.475 base     Recentred          #58805364 0x00000000
+[unichain] eth_getLogs: block range extends beyond current head block
+[unichain] eth_getLogs: block range extends beyond current head block
+19:02:01.981 base     Swap               #58805450 0xd0c5a94c
+19:02:02.421 lasna    RecentreRequested  #8349046 0xd0c5a94c
+19:02:02.896 base     Recentred          #58805455 0xd0c5a94c
+  => LOOP recentre into base: full 1000 ms (block clock), 915 ms (wall clock)
+run 8/24: swap on base (up)
+[unichain] eth_getLogs: block range extends beyond current head block
+19:02:27.355 base     Swap               #58805576 0x3d809c3b
+19:02:27.530 lasna    RecentreRequested  #8349070 0x3d809c3b
+19:02:28.301 base     Recentred          #58805581 0x3d809c3b
+  => LOOP recentre into base: full 1000 ms (block clock), 945 ms (wall clock)
+run 9/24: swap on base (down)
+[unichain] eth_getLogs: block range extends beyond current head block
+19:02:50.728 base     Swap               #58805693 0x4c7edf8f
+19:02:51.923 lasna    RecentreRequested  #8349093 0x4c7edf8f
+19:02:52.297 base     Recentred          #58805703 0x4c7edf8f
+  => LOOP recentre into base: full 2000 ms (block clock), 1569 ms (wall clock)
+run 10/24: swap on base (up)
+[unichain] eth_getLogs: block range extends beyond current head block
+19:03:13.478 base     Swap               #58805808 0x4bb2df10
+19:03:14.688 lasna    RecentreRequested  #8349114 0x4bb2df10
+19:03:15.050 base     Recentred          #58805815 0x4bb2df10
+  => LOOP recentre into base: full 1400 ms (block clock), 1572 ms (wall clock)
+run 11/24: swap on base (down)
+19:03:35.920 base     Swap               #58805921 0x18f2f49a
+19:03:36.818 lasna    RecentreRequested  #8349135 0x18f2f49a
+19:03:37.478 base     Recentred          #58805927 0x18f2f49a
+  => LOOP recentre into base: full 1200 ms (block clock), 1558 ms (wall clock)
+run 12/24: swap on base (up)
+[unichain] eth_getLogs: block range extends beyond current head block
+19:03:58.785 base     Swap               #58806033 0x95f7ed7c
+19:03:59.218 lasna    RecentreRequested  #8349156 0x95f7ed7c
+19:03:59.697 base     Recentred          #58806040 0x95f7ed7c
+  => LOOP recentre into base: full 1400 ms (block clock), 912 ms (wall clock)
+run 13/24: swap on unichain (down)
+[unichain] eth_getLogs: block range extends beyond current head block
+[unichain] eth_getLogs: block range extends beyond current head block
+19:04:20.283 unichain Swap               #67830668 0x73dacc81
+19:04:20.620 lasna    RecentreRequested  #8349176 0x73dacc81
+19:04:22.133 unichain Recentred          #67830670 0x73dacc81
+  => LOOP recentre into unichain: full 2000 ms (block clock), 1851 ms (wall clock)
+[unichain] eth_getLogs: block range extends beyond current head block
+run 14/24: swap on unichain (up)
+19:04:41.222 unichain Swap               #67830689 0x1a987f2e
+19:04:41.665 lasna    RecentreRequested  #8349195 0x1a987f2e
+19:04:41.665 lasna    MoveRequested      #8349195 0x1a987f2e
+[unichain] eth_getLogs: block range extends beyond current head block
+19:04:42.028 base     Departed           #58806251 0x1a987f2e
+19:04:42.505 lasna    ArriveRequested    #8349196 0x2fbb2182
+19:04:43.286 unichain Recentred          #67830691 0x1a987f2e
+  => LOOP recentre into unichain: full 2000 ms (block clock), 2064 ms (wall clock)
+19:04:44.108 unichain Arrived            #67830692 0x2fbb2182
+  => LOOP move into unichain: full 3000 ms (block clock), 2886 ms (wall clock)
+19:04:44.904 lasna    MoveCompleted      #8349198 0x391eaab0
+run 15/24: swap on unichain (down)
+[unichain] eth_getLogs: block range extends beyond current head block
+[unichain] eth_getLogs: block range extends beyond current head block
+19:05:02.309 unichain Swap               #67830710 0x72ffdcf1
+19:05:02.737 lasna    RecentreRequested  #8349215 0x72ffdcf1
+19:05:05.308 unichain Recentred          #67830713 0x72ffdcf1
+  => LOOP recentre into unichain: full 3000 ms (block clock), 3000 ms (wall clock)
+[unichain] eth_getLogs: block range extends beyond current head block
+run 16/24: swap on unichain (up)
+19:05:24.144 unichain Swap               #67830732 0x7039c65d
+19:05:25.032 lasna    RecentreRequested  #8349235 0x7039c65d
+19:05:25.032 lasna    MoveRequested      #8349235 0x7039c65d
+19:05:25.108 base     Departed           #58806467 0x7039c65d
+19:05:26.006 lasna    ArriveRequested    #8349236 0xd8868d15
+19:05:26.385 unichain Recentred          #67830734 0x7039c65d
+  => LOOP recentre into unichain: full 2000 ms (block clock), 2241 ms (wall clock)
+19:05:27.913 lasna    MoveCompleted      #8349238 0xa7ba221e
+19:05:28.219 unichain Arrived            #67830736 0xd8868d15
+  => LOOP move into unichain: full 4000 ms (block clock), 4075 ms (wall clock)
+[unichain] eth_getLogs: block range extends beyond current head block
+run 17/24: swap on unichain (down)
+19:05:45.087 lasna    RecentreRequested  #8349254 0x2370b194
+19:05:45.201 unichain Swap               #67830753 0x2370b194
+19:05:47.401 unichain Recentred          #67830755 0x2370b194
+  => LOOP recentre into unichain: full 2000 ms (block clock), 2200 ms (wall clock)
+run 18/24: swap on unichain (up)
+[unichain] eth_getLogs: block range extends beyond current head block
+19:06:06.339 unichain Swap               #67830774 0x7fd53984
+19:06:06.776 lasna    RecentreRequested  #8349274 0x7fd53984
+19:06:06.776 lasna    MoveRequested      #8349274 0x7fd53984
+19:06:06.868 base     Departed           #58806676 0x7fd53984
+19:06:08.114 lasna    ArriveRequested    #8349275 0x5d07439b
+19:06:08.609 unichain Recentred          #67830776 0x7fd53984
+  => LOOP recentre into unichain: full 2000 ms (block clock), 2270 ms (wall clock)
+19:06:10.068 lasna    MoveCompleted      #8349277 0x5a1e2272
+19:06:10.420 unichain Arrived            #67830778 0x5d07439b
+  => LOOP move into unichain: full 4000 ms (block clock), 4081 ms (wall clock)
+run 19/24: swap on base (down)
+19:06:30.471 base     Swap               #58806793 0x578bfa2e
+19:06:31.146 lasna    RecentreRequested  #8349297 0x578bfa2e
+19:06:31.399 base     Recentred          #58806799 0x578bfa2e
+  => LOOP recentre into base: full 1200 ms (block clock), 927 ms (wall clock)
+run 20/24: swap on base (up)
+[unichain] eth_getLogs: block range extends beyond current head block
+19:06:50.929 base     Swap               #58806897 0x57dcc918
+19:06:52.634 lasna    RecentreRequested  #8349317 0x57dcc918
+19:06:53.190 base     Recentred          #58806906 0x57dcc918
+  => LOOP recentre into base: full 1800 ms (block clock), 2261 ms (wall clock)
+run 21/24: swap on base (down)
+19:07:13.082 base     Swap               #58807007 0xb76a3bcd
+19:07:14.706 lasna    RecentreRequested  #8349338 0xb76a3bcd
+19:07:15.300 base     Recentred          #58807016 0xb76a3bcd
+  => LOOP recentre into base: full 1800 ms (block clock), 2218 ms (wall clock)
+run 22/24: swap on base (up)
+19:07:34.964 base     Swap               #58807117 0x3e451fdc
+19:07:35.422 lasna    RecentreRequested  #8349358 0x3e451fdc
+19:07:36.513 base     Recentred          #58807122 0x3e451fdc
+  => LOOP recentre into base: full 1000 ms (block clock), 1548 ms (wall clock)
+run 23/24: swap on base (down)
+19:07:55.820 base     Swap               #58807219 0xfe33c886
+19:07:57.182 lasna    RecentreRequested  #8349378 0xfe33c886
+19:07:57.378 base     Recentred          #58807228 0xfe33c886
+  => LOOP recentre into base: full 1800 ms (block clock), 1558 ms (wall clock)
+run 24/24: swap on base (up)
+19:08:16.431 base     Swap               #58807324 0xd8edad8f
+19:08:17.227 lasna    RecentreRequested  #8349397 0xd8edad8f
+19:08:17.378 base     Recentred          #58807329 0xd8edad8f
+  => LOOP recentre into base: full 1000 ms (block clock), 947 ms (wall clock)
+[unichain] eth_getLogs: block range extends beyond current head block
+recentre loops on base:
+  full, block clock                  n=12  median   1200 ms   p95   2000 ms   min 1000  max 2000
+  full, wall clock                   n=12  median   1548 ms   p95   2261 ms   min 912  max 2261
+  swap -> brain react (wall)         n=12  median    796 ms   p95   1705 ms   min 175  max 1705
+  brain react -> callback (wall)     n=12  median    475 ms   p95   1090 ms   min 151  max 1090
+recentre loops on unichain:
+  full, block clock                  n=12  median   2000 ms   p95   3000 ms   min 1000  max 3000
+  full, wall clock                   n=12  median   2064 ms   p95   3000 ms   min 1438  max 3000
+  swap -> brain react (wall)         n=12  median    337 ms   p95    901 ms   min -114  max 901
+  brain react -> callback (wall)     n=12  median   1586 ms   p95   2571 ms   min 933  max 2571
+cross-chain moves into unichain:
+  full, block clock                  n=6   median   3000 ms   p95   4000 ms   min 3000  max 4000
+  full, wall clock                   n=6   median   3061 ms   p95   4081 ms   min 2886  max 4081
+  swapToMoveRequested (wall)         n=6   median    436 ms   p95    901 ms   min -66  max 901
+  moveRequestedToDeparted (wall)     n=6   median     92 ms   p95    616 ms   min -32  max 616
+  departedToArriveRequested (wall)   n=6   median    897 ms   p95   1246 ms   min 265  max 1246
+  arriveRequestedToArrived (wall)    n=6   median   1666 ms   p95   2677 ms   min 1246  max 2677
+vault top-ups during runs: 1

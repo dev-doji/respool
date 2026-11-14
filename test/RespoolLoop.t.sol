@@ -60,7 +60,7 @@ contract RespoolLoopTest is Test {
 
         brain = new RespoolBrain(
             RespoolBrain.Params({
-                alphaBps: 5_000,
+                demandHalfLifeBlocks: 60,
                 ratioBps: 20_000,
                 minHotDemand: 1 ether,
                 cooldownBlocks: 0,
@@ -182,17 +182,18 @@ contract RespoolLoopTest is Test {
     // ------------------------------------------------------------------ loops
 
     function test_loop_brainLearnsBootstrapRanges() public view {
-        (,,,, int24 lo, int24 hi, uint128 liq, bool hasRange,,,,) = brain.chains(U);
-        assertTrue(hasRange);
-        assertEq(lo, u.vault.tickLower());
-        assertEq(hi, u.vault.tickUpper());
-        assertEq(liq, u.vault.totalLiquidity());
+        RespoolBrain.Chain memory c = brain.chain(U);
+        assertTrue(c.hasRange);
+        assertEq(c.tickLower, u.vault.tickLower());
+        assertEq(c.tickUpper, u.vault.tickUpper());
+        assertEq(c.liquidity, u.vault.totalLiquidity());
     }
 
     /// Price leaves the range on "Unichain"; the brain asks the vault to recentre; the vault does.
     function test_loop_recentreFollowsPrice() public {
         RespoolBrain.Params memory p;
-        (p.alphaBps, p.ratioBps,, p.cooldownBlocks, p.pendingTimeoutBlocks, p.shareBps,,,) = brain.params();
+        (p.demandHalfLifeBlocks, p.ratioBps,, p.cooldownBlocks, p.pendingTimeoutBlocks, p.shareBps,,,) =
+            brain.params();
         p.minHotDemand = type(uint256).max; // isolate the recentre rule
         p.recentreGas = 2_000_000;
         p.departGas = 2_000_000;
@@ -207,10 +208,10 @@ contract RespoolLoopTest is Test {
 
         assertFalse(RespoolPolicy.outOfRange(tick, u.vault.tickLower(), u.vault.tickUpper()));
         assertEq(u.vault.lastRecentreSeq(), 1);
-        (,,,, int24 lo, int24 hi,,,,, bool pending,) = brain.chains(U);
-        assertEq(lo, u.vault.tickLower());
-        assertEq(hi, u.vault.tickUpper());
-        assertFalse(pending);
+        RespoolBrain.Chain memory c = brain.chain(U);
+        assertEq(c.tickLower, u.vault.tickLower());
+        assertEq(c.tickUpper, u.vault.tickUpper());
+        assertFalse(c.recentrePending);
     }
 
     /// Trading picks up on "Unichain" only; half of "Base"'s position departs and arrives on "Unichain".

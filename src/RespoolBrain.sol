@@ -30,15 +30,16 @@ contract RespoolBrain is AbstractReactive {
         int24 tickUpper;
         uint128 liquidity;
         bool hasRange;
-        uint256 demand;
+        uint256 demand; // recent swap volume, decayed by Reactive blocks elapsed
+        uint256 demandBlock; // block at which `demand` was last brought up to date
         uint64 recentreSeq;
         bool recentrePending;
         uint256 recentreRequestedAt;
     }
 
     struct Params {
-        uint16 alphaBps; // EWMA weight of a new swap
-        uint32 ratioBps; // hot/cold demand ratio that triggers a move (20_000 = 2x)
+        uint32 demandHalfLifeBlocks; // demand halves after this many Reactive blocks without new swaps
+        uint32 ratioBps; // hot/cold demand ratio that triggers a move (30_000 = 3x)
         uint256 minHotDemand; // ignore demand below this
         uint256 cooldownBlocks; // Reactive blocks between moves
         uint256 pendingTimeoutBlocks; // re-allow a recentre if the last one never reported back
@@ -73,7 +74,7 @@ contract RespoolBrain is AbstractReactive {
     Params public params;
 
     uint256[] public chainIds;
-    mapping(uint256 => Chain) public chains;
+    mapping(uint256 => Chain) internal chains;
 
     uint64 public lastMoveId;
     uint64 public inFlightMove;
@@ -142,6 +143,11 @@ contract RespoolBrain is AbstractReactive {
         return chainIds.length;
     }
 
+    /// @notice Everything the brain knows about one chain.
+    function chain(uint256 chainId) external view returns (Chain memory) {
+        return chains[chainId];
+    }
+
     // ------------------------------------------------------------------ react
 
     function react(LogRecord calldata log) external onlySystem {
@@ -196,12 +202,12 @@ contract RespoolBrain is AbstractReactive {
         (int128 amount0,,,, int24 tick,) = abi.decode(data, (int128, int128, uint160, uint128, int24, uint24));
         c.lastTick = tick;
 
-        // Demand is each chain's share of recent swap flow: a swap here adds to this chain and decays the other.
+        // Demand is recent swap volume that fades with time. Both chains are brought up to date with the same
+        // elapsed time on every swap, so balanced trading keeps them level and only a real shift tips the ratio.
         uint256 otherId = _other(chainId);
-        c.demand = RespoolPolicy.ewma(c.demand, RespoolPolicy.absAmount(amount0), params.alphaBps);
-        if (otherId != 0) {
-            chains[otherId].demand = RespoolPolicy.ewma(chains[otherId].demand, 0, params.alphaBps);
-        }
+        _decayDemand(c);
+        c.demand += RespoolPolicy.absAmount(amount0);
+        if (otherId != 0) _decayDemand(chains[otherId]);
 
         _maybeRecentre(chainId, c, tick, trigger);
         if (otherId != 0) _maybeMove(chainId, c, otherId, chains[otherId], trigger);
@@ -255,6 +261,11 @@ contract RespoolBrain is AbstractReactive {
             abi.encodeCall(RespoolVault.depart, (address(0), moveId, params.shareBps, hotId, trigger))
         );
         emit MoveRequested(moveId, coldId, hotId, hot.demand, cold.demand, trigger);
+    }
+
+    function _decayDemand(Chain storage c) internal {
+        c.demand = RespoolPolicy.decay(c.demand, block.number - c.demandBlock, params.demandHalfLifeBlocks);
+        c.demandBlock = block.number;
     }
 
     function _requestArrive(uint64 moveId, uint256 a0, uint256 a1, bytes32 trigger) internal {

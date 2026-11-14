@@ -64,10 +64,16 @@ contract RespoolPolicyTest is Test {
         assertEq(RespoolPolicy.absAmount(type(int128).min), uint256(uint128(type(int128).max)) + 1);
     }
 
-    function test_ewma() public pure {
-        assertEq(RespoolPolicy.ewma(1000, 0, 2_000), 800);
-        assertEq(RespoolPolicy.ewma(0, 1000, 2_000), 200);
-        assertEq(RespoolPolicy.ewma(1000, 5000, 10_000), 5000);
+    function test_decay_halvesAfterHalfLife() public pure {
+        assertEq(RespoolPolicy.decay(1000, 0, 60), 1000);
+        assertEq(RespoolPolicy.decay(1000, 60, 60), 500);
+        assertEq(RespoolPolicy.decay(1000, 120, 60), 333);
+        assertEq(RespoolPolicy.decay(0, 10, 60), 0);
+        assertEq(RespoolPolicy.decay(1000, 10, 0), 0);
+    }
+
+    function testFuzz_decay_neverGrows(uint128 d, uint32 elapsed, uint32 halfLife) public pure {
+        assertLe(RespoolPolicy.decay(d, elapsed, halfLife), d);
     }
 
     function test_shouldMove_rules() public pure {

@@ -43,8 +43,8 @@ contract RespoolBrainTest is Test {
 
     function _params() internal pure returns (RespoolBrain.Params memory) {
         return RespoolBrain.Params({
-            alphaBps: 5_000,
-            ratioBps: 20_000,
+            demandHalfLifeBlocks: 60,
+            ratioBps: 30_000,
             minHotDemand: 1 ether,
             cooldownBlocks: 0,
             pendingTimeoutBlocks: 100,
@@ -276,9 +276,63 @@ contract RespoolBrainTest is Test {
         assertEq(sys.callbackCount(), 1);
     }
 
+    function _departsTo(address vault) internal view returns (uint256 n) {
+        for (uint256 i = 0; i < sys.callbackCount(); i++) {
+            ISystemContract.CallbackConfiguration_V_1_0 memory cb = sys.callback(i);
+            if (cb.recipient == vault && bytes4(cb.payload) == RespoolVault.depart.selector) n++;
+        }
+    }
+
+    function _burstParams() internal {
+        RespoolBrain.Params memory p = _params();
+        p.minHotDemand = 15 ether; // a single 10-token swap is not a trend
+        brain.setParams(p);
+    }
+
+    /// Alternating equal swaps, 20 blocks apart: both chains decay alike, demand stays level
+    /// (ratio about 1.3x), so nothing moves. The old rule moved on every swap the cooldown allowed.
+    function test_balancedTrading_movesNothing() public {
+        _bootstrapBoth();
+        _burstParams();
+        uint256 bn = 1000; // explicit start block: no block.number reads across vm.roll
+        vm.roll(bn);
+        for (uint256 i = 0; i < 20; i++) {
+            bn += 20;
+            vm.roll(bn);
+            _swap(i % 2 == 0 ? U : B, 10 ether, 0);
+        }
+        assertEq(_departsTo(VAULT_U) + _departsTo(VAULT_B), 0);
+    }
+
+    /// A burst on Unichain pulls liquidity from Base; a later burst on Base pulls it back.
+    function test_bursts_moveLiquidityBothWays() public {
+        _bootstrapBoth();
+        _burstParams();
+        uint256 bn = 1000; // explicit start block: no block.number reads across vm.roll
+        vm.roll(bn);
+        for (uint256 i = 0; i < 4; i++) {
+            bn += 20;
+            vm.roll(bn);
+            _swap(U, 10 ether, 0);
+        }
+        assertEq(_departsTo(VAULT_B), 1, "burst on Unichain should move liquidity off Base");
+        assertEq(brain.moveDst(), U);
+        _departed(B, 1, 1 ether, 1 ether);
+        _arrived(U, 1);
+        assertEq(brain.inFlightMove(), 0);
+
+        for (uint256 i = 0; i < 6; i++) {
+            bn += 20;
+            vm.roll(bn);
+            _swap(B, 10 ether, 0);
+        }
+        assertEq(_departsTo(VAULT_U), 1, "burst on Base should move liquidity off Unichain");
+        assertEq(brain.moveDst(), B);
+    }
+
     function test_noMove_belowNoiseFloor() public {
         _bootstrapBoth();
-        _swap(U, 1 ether, 0); // EWMA = 0.5 ether < 1 ether floor
+        _swap(U, 0.5 ether, 0); // demand 0.5 ether < 1 ether floor
         assertEq(sys.callbackCount(), 0);
     }
 

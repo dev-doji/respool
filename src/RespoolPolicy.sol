@@ -46,13 +46,13 @@ library RespoolPolicy {
         return uint256(uint128(-(amount + 1))) + 1;
     }
 
-    /// @notice Exponentially weighted moving average in integer maths.
-    /// @param prev Previous score.
-    /// @param sample New observation.
-    /// @param alphaBps Weight of the new sample, in basis points (0..10_000).
-    function ewma(uint256 prev, uint256 sample, uint16 alphaBps) internal pure returns (uint256) {
-        if (alphaBps > 10_000) alphaBps = 10_000;
-        return (prev * (10_000 - alphaBps) + sample * alphaBps) / 10_000;
+    /// @notice Demand that fades with time: halved after `halfLife` blocks, a third after 2x, and so on
+    ///         (`d * H / (H + elapsed)`). Both chains are decayed by the same elapsed time, so balanced
+    ///         trading keeps their scores level and only a real shift in volume tips the ratio.
+    function decay(uint256 d, uint256 elapsed, uint256 halfLife) internal pure returns (uint256) {
+        if (d == 0) return 0;
+        if (halfLife == 0) return 0;
+        return (d * halfLife) / (halfLife + elapsed);
     }
 
     /// @notice Whether liquidity should move from the cold chain to the hot chain.

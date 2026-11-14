@@ -43,8 +43,8 @@ abstract contract RespoolConfig is Script {
 
     function brainParams() internal pure returns (RespoolBrain.Params memory) {
         return RespoolBrain.Params({
-            alphaBps: 5_000,
-            ratioBps: 20_000, // busy chain needs 2x the quiet chain's demand
+            demandHalfLifeBlocks: 60, // demand halves after about a minute without swaps
+            ratioBps: 30_000, // busy chain needs 3x the quiet chain's demand (balanced trading sits near 1.3x)
             minHotDemand: 1 ether,
             cooldownBlocks: 30, // about 30 s on Lasna
             pendingTimeoutBlocks: 60,

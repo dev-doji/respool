@@ -2,8 +2,9 @@
 // Respool latency observer. No dependencies (Node 18+).
 //
 //   node observer/observe.mjs watch                       record loops until Ctrl+C
-//   node observer/observe.mjs run --chains base,unichain --runs 30
-//                                                         drive swaps (forge script) and record each loop
+//   node observer/observe.mjs run --chains base,unichain --runs 30 [--burst 6]
+//                                                         drive swaps (forge script) and record each loop;
+//                                                         --burst N groups N swaps per chain
 //   node observer/observe.mjs summary                     median / p95 from results/loops.jsonl
 //
 // For every event it records two clocks:
@@ -275,12 +276,14 @@ async function vaultLiquidity(c) {
 async function run(args) {
   const runs = Number(args.runs || 30);
   const names = (args.chains || "base").split(",");
+  // --burst N: N swaps on one chain, then N on the next (default 1 = alternate every swap).
+  const burst = Math.max(1, Number(args.burst || 1));
   const { cs, asm, stop } = start();
   for (const n of names) if (!cs[n]) throw new Error(`chain ${n} not deployed`);
   await sleep(2000); // let watchers learn the head block
   const dir = {};
   for (let i = 0; i < runs; i++) {
-    const n = names[i % names.length];
+    const n = names[Math.floor(i / burst) % names.length];
     const c = cs[n];
     if ((await vaultLiquidity(c)) < 10n ** 20n) {
       console.log(`  (top-up: ${n} vault total liquidity low, running Bootstrap with 50 test tokens per side)`);
@@ -346,4 +349,4 @@ for (let i = 0; i < rest.length; i += 2) args[rest[i].replace(/^--/, "")] = rest
 if (cmd === "watch") start();
 else if (cmd === "run") run(args).catch((e) => { console.error(e); process.exit(1); });
 else if (cmd === "summary") summary();
-else console.log("usage: node observer/observe.mjs watch | run --chains base,unichain --runs 30 | summary");
+else console.log("usage: node observer/observe.mjs watch | run --chains base,unichain --runs 30 [--burst N] | summary");

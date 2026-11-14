@@ -14,15 +14,16 @@ Built for the Reactive hackathon track **Every Second Counts**. Full design: [do
 | Part | State |
 |---|---|
 | Spec and verified platform addresses | Written ([docs/SPEC.md](docs/SPEC.md)) |
-| `RespoolPolicy` decision rules | Done: 8 tests in `test/RespoolPolicy.t.sol`, including a fuzz test |
+| `RespoolPolicy` decision rules | Done: 9 tests in `test/RespoolPolicy.t.sol`, including fuzz tests |
 | `RespoolToken` (test-only ERC-20) and `RespoolVault` | Done, tested locally: 18 tests in `test/RespoolVault.t.sol` against a real v4 PoolManager deployed in the test (recentre, depart, arrive, auth, duplicate and out-of-order callbacks, supply conserved across a move, leftover tokens parked in a one-sided limit position instead of idle). Deployed on Base Sepolia and Unichain Sepolia |
-| `RespoolBrain` (reactive contract) | Done, tested locally: 15 unit tests in `test/RespoolBrain.t.sol` (subscriptions, recentre rule, move rule, arrive only for the in-flight move, auth) using a mock of the Reactive system contract. Deployed on Lasna |
+| `RespoolBrain` (reactive contract) | Done, tested locally: 18 unit tests in `test/RespoolBrain.t.sol` (subscriptions, recentre rule, move rule, arrive only for the in-flight move, auth) using a mock of the Reactive system contract. Deployed on Lasna |
 | End-to-end loop (**simulated**) | 3 tests in `test/RespoolLoop.t.sol`: real brain + two real vaults + a test relay standing in for Reactive Network. Shows recentre and a full cross-pool move. No real network, no timing |
 | Deploy scripts | Written ([docs/DEPLOY.md](docs/DEPLOY.md)). Full sequence rehearsed on local forks with `bash script/dryrun.sh` |
-| Live on testnets | **Lasna + Base Sepolia + Unichain Sepolia: deployed and working.** Recentre loops run on both chains; cross-chain moves (Unichain → Base) run live. One duplicate callback delivery was seen live and skipped by the vault |
-| Latency | **Two live batches, 61 recentre loops and 24 cross-chain moves, every swap completed its loop** ([docs/LATENCY.md](docs/LATENCY.md)). Latest batch, full loop, block clock: recentre on Base median 1.4 s (p95 2.6 s), recentre on Unichain median 2.0 s (p95 3.0 s, whole-second clock), move Unichain → Base median 3.6 s (p95 4.6 s). No Ethereum Sepolia baseline yet |
+| Live on testnets | **Lasna + Base Sepolia + Unichain Sepolia: deployed and working.** Recentre loops run on both chains; cross-chain moves run live in both directions (Unichain → Base and Base → Unichain). One duplicate callback delivery was seen live and skipped by the vault |
+| Latency | **Four live batches; in every one, every swap completed its recentre loop** ([docs/LATENCY.md](docs/LATENCY.md)). Latest batch (brain v4, 34 swaps), full loop, block clock: recentre on Base median 1.6 s (p95 2.4 s), recentre on Unichain median 2.0 s (p95 3.0 s, whole-second clock), cross-chain move median 3.4 s (p95 4.0 s, only 5 moves, so indicative). Earlier batches (up to 30 swaps) gave similar figures. No Ethereum Sepolia baseline yet |
+| Move direction | Batches 1 and 2 moved liquidity toward Base 24 times out of 24, whatever the trading pattern. Batch 3 (volume-based demand) then went one way again, toward Unichain. Batch 4 (demand = recent swap count): **balanced alternating trading moved nothing (0 of 10 swaps); bursts of 6 swaps moved liquidity toward the busy chain in both directions** (5 moves in 24 swaps). Tests lock this in |
 | Latency observer | `observer/observe.mjs` (Node 18+, no dependencies): `run` drives swaps and records loops, `summary` prints median / p95 (`RESULTS_FILE` picks the batch, default `results/loops.jsonl`) |
-| Known limits | After a full crossing a vault holds one token and cannot rebuild a two-sided position at the new price without an outside venue; leftover tokens now go into a one-sided limit position (top-ups fell from 13 to 2 between batches; the 2 were caused by moves emptying Unichain). Moves have only gone toward Base so far: the demand rule's direction is untuned. See LATENCY.md |
+| Known limits | After a full crossing a vault holds one token and cannot rebuild a two-sided position at the new price without an outside venue; leftover tokens go into a one-sided limit position (13 top-ups in batch 1, 2 in batch 2, 0 in batch 4). The move rule has only been run with the driver's evenly spaced swaps, not real trading. One move needs about 3.4 s end to end, so a burst shorter than that is over before liquidity arrives. See LATENCY.md |
 
 ## Requirements
 
@@ -39,7 +40,7 @@ forge test
 ```
 
 If you cloned without `--recurse-submodules`, run `git submodule update --init --recursive` first.
-`forge test` currently runs 44 tests; all pass.
+`forge test` currently runs 48 tests; all pass.
 
 ## Layout
 

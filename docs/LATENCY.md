@@ -66,9 +66,9 @@ legs are left in the raw data and excluded from the claims above.
   transactions (`0xdacf680d…` and `0xbbbb12a1…`). The brain requested it once. The vault's idempotency
   check skipped the second (`CallbackSkipped`, reason 3), so no tokens were burned twice. No further
   duplicates were seen in the next 9 moves.
-- **Moves only went toward Base in this batch.** The demand rule fired 9 times, always Unichain → Base.
-  Demand is measured by |amount0| per swap, and with alternating equal-sized swaps the two chains sit
-  right at the 2× threshold, so small differences in swap size decide the direction. Not yet tuned.
+- **Moves only went toward Base in this batch.** The demand rule fired 9 times, always Unichain → Base,
+  although the driver alternated equal-sized swaps between the chains. Cause diagnosed in batches 3 and 4
+  below (the first guess recorded here, that swap size decided it, was incomplete).
 - **Recentring drains in-range liquidity.** When price crosses a position completely, the vault ends up
   holding one token, and re-centring can only use as much as the scarcer token allows. The driver
   topped vaults up 13 times (owner `bootstrap`, minting 50 test tokens per side) when liquidity fell
@@ -107,7 +107,50 @@ needed no top-up and ended with base liquidity 4.2e21 plus limit liquidity 3.0e2
 base position is entirely one token. Without an outside venue to swap against (on these testnets the
 Respool pool is the only liquidity), the vault cannot rebuild a two-sided base right at the new price.
 The limit position keeps that inventory in the pool beside the price, and traders convert it back when
-price returns. Moves again only went toward Base; the demand rule's direction is still untuned.
+price returns. Moves again only went toward Base (see batches 3 and 4 for why and the fix).
+
+## Batches 3 and 4: making liquidity follow demand (2026-11-14)
+
+Batches 1 and 2 moved liquidity toward Base 24 times out of 24, under trading that alternated
+evenly between the chains. A rule that always picks one side is not "liquidity that moves to where it is
+needed", so the demand rule was reworked twice. Both live batches ran the same two parts: **balanced**
+(10 swaps alternating between chains, no chain busier than the other) and **burst** (24 swaps in blocks of
+6: 6 on Unichain, 6 on Base, repeating). Raw data: `results/loops-v3-*.jsonl`, `results/loops-v4-*.jsonl`
+and the matching `run-*.log` files.
+
+**Batch 3, demand as time-decayed swap volume (brain v3).** The old score added each swap to its chain and
+halved the other chain's, which left the busy chain at exactly the 2× threshold after every swap. v3
+scored recent swap volume, faded by Reactive blocks, on both chains alike, with a 3× threshold. Result:
+every move went to **Unichain** (5 of 5 balanced, 6 of 6 burst), including during the Base bursts. The
+switch from always-Base to always-Unichain, with a fresh deployment each time, points at the signal
+rather than the driver: each swap is price-limited, so it trades whatever liquidity sits in its path, and
+"volume" measured how deep the pool was, not how busy. That is an inference from the pattern; I did not
+record per-swap volumes to prove it.
+
+**Batch 4, demand as time-decayed swap count (brain v4, current).** Each swap adds one unit, faded by
+Reactive blocks, on both chains alike. Move threshold 3×, noise floor about two recent swaps.
+
+| Part | Swaps | Moves | Direction |
+|---|---|---|---|
+| Balanced (alternating) | 10 | **0** | none |
+| Burst, 4 blocks of 6 | 24 | **5** | Unichain→Base x2 and Base→Unichain x3, each right after the burst that caused it |
+
+Moves followed the bursts: a burst on Unichain pulled liquidity from Base, then a burst on Base pulled it
+back, and so on, in both directions. 34 of 34 swaps completed their recentre loop, 5 of 5 moves completed,
+and no vault top-up was needed.
+
+| Batch 4 loop | n | median | p95 |
+|---|---|---|---|
+| Recentre, Base Sepolia | 17 | 1.6 s | 2.4 s |
+| Recentre, Unichain Sepolia | 17 | 2.0 s | 3.0 s |
+| Cross-chain move (either direction) | 5 | 3.4 s | 4.0 s |
+
+The recentre figures combine the balanced and burst parts (5 + 12 per chain). Five moves is a small
+sample, so treat the move median as indicative.
+
+On-chain tests lock the behaviour in: balanced alternating trading moves nothing, bursts move liquidity
+both ways, and 100-token swaps on one chain against 1-token swaps on the other move nothing
+(`test/RespoolBrain.t.sol`).
 
 ## Deployment used
 
@@ -119,9 +162,10 @@ price returns. Moves again only went toward Base; the demand rule's direction is
 | RespoolVault | Unichain Sepolia (1301) | `0x92D11779756817E2587E8d2C47A31B9BD282512C` |
 | Respool pool id | Unichain Sepolia | `0x2abcc1e957a54deb87829d1751acc0b7b7001f0cf5769e374da3c48363493c85` |
 
-Those vaults were used for sample 1 and batch 1. Batch 2 used the current vaults, listed in
-[deployments/84532.json](../deployments/84532.json) and [deployments/1301.json](../deployments/1301.json):
-Base Sepolia `0xA4ef330de4979fCc409E370DB6f2Ed559732891c`, Unichain Sepolia
-`0x4A89A9331D524E72E899741b9f1d1cAb596D53fc`.
+Those contracts were used for sample 1 and batch 1. Batch 2 used another pair of vaults with the same
+brain. Batches 3 and 4 each used a new brain and new vaults; the current set (batch 4) is in
+[deployments/](../deployments/): brain `0x1BF343a05d09f578D5c248C2B05A47019a434f56` on Lasna, vaults
+`0x3cC9a15b8Fb99910746a94fc35092835B48fff3C` (Base Sepolia) and `0xA8e21561082E5c73eE732812a8AA4bCf6917E7fC`
+(Unichain Sepolia).
 
 Full list: [deployments/](../deployments/).

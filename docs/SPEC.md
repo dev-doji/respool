@@ -94,12 +94,15 @@ Subscriptions:
 - v4 `Swap` on both PoolManagers, filtered by `topic1 = poolId` of each Respool pool.
 - `Recentred`, `Departed`, `Arrived` from both vaults (so it knows the live range and in-flight moves).
 
-State per chain: last tick, vault range `[lower, upper)`, demand score (EWMA of absolute swap size),
+State per chain: last tick, vault range `[lower, upper)`, demand score (count of recent swaps, 1e18 each,
+faded by Reactive blocks elapsed: `d * H / (H + elapsed)`; swap volume was tried and measured pool depth, see
+LATENCY.md batches 3 and 4),
 pending recentre flag. Global: in-flight move id.
 
 Rules (pure functions in `RespoolPolicy`, unit-tested):
 - **Recentre** when `tick < lower || tick >= upper` and no recentre is pending for that chain.
-- **Move** when `demand[H] * 10_000 >= demand[C] * k_bps`, vault C has liquidity, and no move in flight.
+- **Move** when `demand[H] * 10_000 >= demand[C] * k_bps` (k = 3x live), `demand[H]` is above a noise floor,
+  vault C has liquidity, and no move is in flight.
   Cooldown in blocks to prevent thrashing.
 - **Arrive** on `Departed` for the in-flight move id only.
 

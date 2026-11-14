@@ -1,0 +1,60 @@
+run 1/10: swap on unichain (down)
+19:13:35.096 lasna    RecentreRequested  #8349699 0xca79ef49
+19:13:35.483 unichain Swap               #67831223 0xca79ef49
+19:13:37.698 unichain Recentred          #67831225 0xca79ef49
+  => LOOP recentre into unichain: full 2000 ms (block clock), 2215 ms (wall clock)
+run 2/10: swap on base (down)
+19:13:59.809 base     Swap               #58809039 0x296d2d3d
+19:14:00.966 lasna    RecentreRequested  #8349723 0x296d2d3d
+19:14:01.421 base     Recentred          #58809048 0x296d2d3d
+  => LOOP recentre into base: full 1800 ms (block clock), 1613 ms (wall clock)
+run 3/10: swap on unichain (up)
+19:14:20.970 lasna    RecentreRequested  #8349742 0x29c9ee2b
+19:14:20.924 unichain Swap               #67831269 0x29c9ee2b
+19:14:23.148 unichain Recentred          #67831271 0x29c9ee2b
+  => LOOP recentre into unichain: full 2000 ms (block clock), 2223 ms (wall clock)
+run 4/10: swap on base (up)
+19:14:43.647 base     Swap               #58809259 0x39972a1e
+19:14:44.218 lasna    RecentreRequested  #8349764 0x39972a1e
+19:14:44.567 base     Recentred          #58809264 0x39972a1e
+  => LOOP recentre into base: full 1000 ms (block clock), 920 ms (wall clock)
+run 5/10: swap on unichain (down)
+19:15:04.090 unichain Swap               #67831312 0x7b538751
+19:15:05.099 lasna    RecentreRequested  #8349783 0x7b538751
+19:15:07.321 unichain Recentred          #67831315 0x7b538751
+  => LOOP recentre into unichain: full 3000 ms (block clock), 3231 ms (wall clock)
+run 6/10: swap on base (down)
+19:15:27.845 base     Swap               #58809481 0x2fde8641
+19:15:29.200 lasna    RecentreRequested  #8349806 0x2fde8641
+19:15:30.198 base     Recentred          #58809490 0x2fde8641
+  => LOOP recentre into base: full 1800 ms (block clock), 2354 ms (wall clock)
+run 7/10: swap on unichain (up)
+19:15:50.202 unichain Swap               #67831358 0x4660e25a
+19:15:50.724 lasna    RecentreRequested  #8349826 0x4660e25a
+19:15:52.027 unichain Recentred          #67831360 0x4660e25a
+  => LOOP recentre into unichain: full 2000 ms (block clock), 1825 ms (wall clock)
+run 8/10: swap on base (up)
+19:16:11.883 base     Swap               #58809700 0x248fc252
+19:16:13.039 lasna    RecentreRequested  #8349847 0x248fc252
+19:16:13.487 base     Recentred          #58809708 0x248fc252
+  => LOOP recentre into base: full 1600 ms (block clock), 1604 ms (wall clock)
+run 9/10: swap on unichain (down)
+19:16:36.205 unichain Swap               #67831404 0xc7055928
+19:16:36.953 lasna    RecentreRequested  #8349869 0xc7055928
+19:16:38.480 unichain Recentred          #67831406 0xc7055928
+  => LOOP recentre into unichain: full 2000 ms (block clock), 2275 ms (wall clock)
+run 10/10: swap on base (down)
+19:16:59.017 base     Swap               #58809935 0x1af8c85d
+19:17:00.168 lasna    RecentreRequested  #8349891 0x1af8c85d
+19:17:00.662 base     Recentred          #58809944 0x1af8c85d
+  => LOOP recentre into base: full 1800 ms (block clock), 1645 ms (wall clock)
+recentre loops on base:
+  full, block clock                  n=5   median   1800 ms   p95   1800 ms   min 1000  max 1800
+  full, wall clock                   n=5   median   1613 ms   p95   2354 ms   min 920  max 2354
+  swap -> brain react (wall)         n=5   median   1156 ms   p95   1355 ms   min 571  max 1355
+  brain react -> callback (wall)     n=5   median    456 ms   p95    998 ms   min 349  max 998
+recentre loops on unichain:
+  full, block clock                  n=5   median   2000 ms   p95   3000 ms   min 2000  max 3000
+  full, wall clock                   n=5   median   2223 ms   p95   3231 ms   min 1825  max 3231
+  swap -> brain react (wall)         n=5   median    522 ms   p95   1008 ms   min -387  max 1008
+  brain react -> callback (wall)     n=5   median   2178 ms   p95   2602 ms   min 1303  max 2602

@@ -33,13 +33,17 @@ Built for the Reactive hackathon track **Every Second Counts**. Full design: [do
 ## Setup
 
 ```bash
-git clone --recurse-submodules <repo-url> respool
+git clone https://github.com/dev-doji/respool.git
 cd respool
+git submodule update --init
+git -C lib/v4-core submodule update --init lib/solmate
 forge build
 forge test
 ```
 
-If you cloned without `--recurse-submodules`, run `git submodule update --init --recursive` first.
+Do not use `--recurse-submodules` or `--recursive`: Uniswap v4-core nests an OpenZeppelin repository that fails
+to clone. Only `solmate` is needed from inside v4-core, and the second command fetches just that. Checked on a
+fresh clone: `forge build` succeeds and `forge test` passes all 48 tests.
 `forge test` currently runs 48 tests; all pass.
 
 ## Layout

@@ -220,8 +220,9 @@ details.more[open] summary svg { transform: rotate(180deg); }
 .copy { position: absolute; right: 10px; top: 10px; }
 .foot { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; padding: 30px 0 44px; font-family: var(--m); font-size: 11.5px; color: var(--faint); text-transform: uppercase; letter-spacing: .05em; }
 
-.js .rise { opacity: 0; transform: translateY(16px); transition: opacity .6s var(--ease), transform .6s var(--ease); }
-.js .rise.in { opacity: 1; transform: none; }
+.rise { transition: opacity .6s var(--ease), transform .6s var(--ease); }
+.rise.pre { opacity: 0; transform: translateY(16px); }
+.rise.pre.in { opacity: 1; transform: none; }
 .toast { position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 20px); background: var(--ink); color: #fff; font-family: var(--m); font-size: 12px; padding: 10px 16px; opacity: 0; pointer-events: none; transition: opacity .2s, transform .2s var(--ease); z-index: 60; }
 .toast.show { opacity: 1; transform: translate(-50%, 0); }
 
@@ -246,7 +247,7 @@ details.more[open] summary svg { transform: rotate(180deg); }
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
-  .js .rise { opacity: 1; transform: none; }
+  .rise.pre { opacity: 1; transform: none; }
 }
 
 /* ---------- touch targets: keep the look, grow the hit area (44px minimum on touch screens) ---------- */

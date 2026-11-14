@@ -23,7 +23,7 @@ Built for the Reactive hackathon track **Every Second Counts**. Full design: [do
 | Latency | **Four live batches; in every one, every swap completed its recentre loop** ([docs/LATENCY.md](docs/LATENCY.md)). Latest batch (brain v4, 34 swaps), full loop, block clock: recentre on Base median 1.6 s (p95 2.4 s), recentre on Unichain median 2.0 s (p95 3.0 s, whole-second clock), cross-chain move median 3.4 s (p95 4.0 s, only 5 moves, so indicative). Earlier batches (up to 30 swaps) gave similar figures. No Ethereum Sepolia baseline yet |
 | Move direction | Batches 1 and 2 moved liquidity toward Base 24 times out of 24, whatever the trading pattern. Batch 3 (volume-based demand) then went one way again, toward Unichain. Batch 4 (demand = recent swap count): **balanced alternating trading moved nothing (0 of 10 swaps); bursts of 6 swaps moved liquidity toward the busy chain in both directions** (5 moves in 24 swaps). Tests lock this in |
 | Latency observer | `observer/observe.mjs` (Node 18+, no dependencies): `run` drives swaps and records loops, `summary` prints median / p95 (`RESULTS_FILE` picks the batch, default `results/loops.jsonl`) |
-| Website | `web/`: a static page in the usebeeline.xyz look (no framework, no build step). Replays any of the 39 recorded loops step by step, plots every loop with median and p95, and reads both vaults and the brain live from the chains in your browser. Checked in a browser at desktop and 375 px width, with an accessibility pass and zero console errors. **Not hosted anywhere yet**; run it locally (see Website below) |
+| Website | `web/`: a Next.js 15 app (same versions as Beeline: next 15.5.29, react 19.1.1, TypeScript 5.9.2) in the usebeeline.xyz look. Replays any of the 39 recorded loops step by step, plots every loop with median and p95, and reads both vaults and the brain live from the chains in your browser. `npm run typecheck` and `npm run build` pass; checked in a browser with no console errors. **Not hosted anywhere yet**; run it locally (see Website below) |
 | Known limits | After a full crossing a vault holds one token and cannot rebuild a two-sided position at the new price without an outside venue; leftover tokens go into a one-sided limit position (13 top-ups in batch 1, 2 in batch 2, 0 in batch 4). The move rule has only been run with the driver's evenly spaced swaps, not real trading. One move needs about 3.4 s end to end, so a burst shorter than that is over before liquidity arrives. See LATENCY.md |
 
 ## Requirements
@@ -49,14 +49,20 @@ fresh clone: `forge build` succeeds and `forge test` passes all 48 tests.
 
 ## Website
 
+A Next.js app in `web/`. You need Node 18+.
+
 ```bash
-node web/build-data.mjs                      # rebuilds web/data.js from deployments/ and results/
-python -m http.server 4173 --directory web   # then open http://localhost:4173
+cd web
+npm install
+npm run dev
 ```
 
-Every number on the page comes from `web/data.js`, which `build-data.mjs` generates from the repo's own
-deployment files and measurement results. The Vaults section reads the chains directly over public RPC, so it
-needs a network connection; if a node is unreachable the page says so instead of showing stale values.
+Then open <http://localhost:3000>. If port 3000 is busy (for example Beeline is running), use `npm run dev -- -p 3001`.
+
+`npm run build` makes a production build and `npm run typecheck` checks the types. Every number on the page comes
+from `web/lib/data.json`, which `npm run data` regenerates from the repo's own `deployments/` and `results/`
+files. The Vaults section reads the chains directly over public RPC, so it needs a network connection; if a node
+is unreachable the page says so instead of showing stale values.
 
 ## Layout
 
@@ -81,6 +87,6 @@ results/                     raw loop records (loops.jsonl) and run logs
 docs/SPEC.md                 design, verified addresses, latency method, milestones
 docs/DEPLOY.md               testnet deployment steps, funding, faucets
 docs/LATENCY.md              live latency measurements with tx hashes
-web/index.html, style.css, app.js   the website (static)
-web/build-data.mjs           builds web/data.js from deployments/ and results/
+web/                        the website (Next.js): app/, components/, lib/
+web/scripts/build-data.mjs   builds web/lib/data.json from deployments/ and results/
 ```

@@ -1,0 +1,7 @@
+{
+  // Static deploy of the exported site: EXPORT=1 npm run build, then
+  //   npx wrangler deploy --config wrangler.static.jsonc
+  "name": "respool-web",
+  "compatibility_date": "2026-11-17",
+  "assets": { "directory": "./out", "not_found_handling": "404-page" }
+}

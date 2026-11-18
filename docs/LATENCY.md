@@ -152,6 +152,28 @@ On-chain tests lock the behaviour in: balanced alternating trading moves nothing
 both ways, and 100-token swaps on one chain against 1-token swaps on the other move nothing
 (`test/RespoolBrain.t.sol`).
 
+## Bridge test: Across, Unichain Sepolia to Base Sepolia (2026-11-18), n = 1
+
+Not part of Respool yet. A feasibility test of the bridge a future "move my funds" feature would use underneath.
+One real transfer of **0.001 ETH** from the deployer wallet, through Across's testnet SpokePool on each chain
+(`depositV3` on Unichain with the quote from Across's testnet API, simulated first, then sent).
+
+| Step | Chain | Detail |
+|---|---|---|
+| Deposit | Unichain Sepolia | tx `0xa6cff1c93073d9c7be88ea8c9ff58a5a9c7c75a6174af082a4b5d5be084cd7eb`, block 68156399, chain time 1795008827 s |
+| Fill | Base Sepolia | tx `0x49920ad7628da6fade37a8976e0fdfabe824d0fe7fcefa8c38bb78b3138e6bc6`, block 60434804, chain time 1795008829.6 s |
+
+- **Deposit to fill: about 2 to 3 s** on the chains' own clocks (Unichain's clock is whole seconds, so ±1 s). A 1-second
+  polling check from the deposit's confirmation to the funds appearing on Base measured 3.4 s. Across's quote
+  had estimated 10 s.
+- **Amount received:** 0.000997616530340222 ETH, exactly the quote's output amount, so the fee was 0.238%.
+- Across quoted routes for ETH (native), WETH and USDC in both directions between these two chains, with testnet limits of
+  about 8 USDC or 0.0045 ETH per transfer. Only the ETH route was actually sent.
+- Across's own status endpoint did not know this deposit (testnet indexer), so the fill was found directly from the
+  Base SpokePool's fill event for origin chain 1301, deposit ID 6100.
+- One sample, one asset, tiny amount. It shows the route works and is fast, not that it is reliable under load. Across's docs
+  warn that unfilled testnet deposits are not refunded automatically.
+
 ## Deployment used
 
 | Contract | Chain | Address |

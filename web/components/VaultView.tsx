@@ -2,6 +2,7 @@
 // The test-USDC vault card. Purely presentational: it renders a position and reports what the visitor asked
 // for. All wallet and transaction logic stays in USDCPosition, so every state can be previewed without a wallet.
 import { amountProblem, format, parse } from "@/lib/usdc";
+import type { UsdcNetwork } from "@/lib/usdcNetworks";
 
 export type Tab = "deposit" | "withdraw";
 export type Action = "approve" | "deposit" | "redeem";
@@ -9,6 +10,8 @@ export type Position = { usdc: bigint; shares: bigint; allowance: bigint };
 export type Notice = { tone: "info" | "ok" | "error"; text: string };
 
 interface Props {
+  /** Network the vault is on: its name and block explorer. */
+  network: Pick<UsdcNetwork, "name" | "explorer">;
   /** Vault address, or "" when the vault has not been deployed. */
   vault: string;
   position?: Position;
@@ -23,15 +26,13 @@ interface Props {
   onRefresh(): void;
 }
 
-const EXPLORER = "https://sepolia.basescan.org";
-
-export function VaultView({ vault, position, input, tab, busy, notice, hash, onInput, onTab, onAction, onRefresh }: Props) {
+export function VaultView({ network, vault, position, input, tab, busy, notice, hash, onInput, onTab, onAction, onRefresh }: Props) {
   if (!vault) {
     return (
       <div className="banner" role="status">
         <div>
           <b>The test USDC vault is not live yet.</b>
-          <p className="hint">It has not been deployed to Base Sepolia, so deposits are switched off. Nothing is wrong with your wallet.</p>
+          <p className="hint">It has not been deployed to {network.name}, so deposits are switched off. Nothing is wrong with your wallet.</p>
         </div>
       </div>
     );
@@ -70,7 +71,7 @@ export function VaultView({ vault, position, input, tab, busy, notice, hash, onI
           <button type="button" className="pbtn small max" disabled={busy || !max || max === 0n} onClick={() => max !== undefined && onInput(format(max))}>Max</button>
         </div>
         <p id="amount-hint" className={`hint${problem ? " bad" : ""}`}>
-          {problem || (deposit ? "Needs a little Base Sepolia ETH for gas." : "Withdrawing returns test USDC to your wallet 1:1.")}
+          {problem || (deposit ? `Needs a little ${network.name} ETH for gas.` : "Withdrawing returns test USDC to your wallet 1:1.")}
         </p>
       </div>
 
@@ -89,13 +90,13 @@ export function VaultView({ vault, position, input, tab, busy, notice, hash, onI
             {notice.tone === "info" && busy && <span className="spinner" aria-hidden="true" />}
             <div>
               <span>{notice.text}</span>
-              {hash && <> <a href={`${EXPLORER}/tx/${hash}`} target="_blank" rel="noopener noreferrer">View transaction ↗</a></>}
+              {hash && <> <a href={`${network.explorer}/tx/${hash}`} target="_blank" rel="noopener noreferrer">View transaction ↗</a></>}
             </div>
           </div>
         )}
       </div>
 
-      <p className="cap dim">Vault <a className="mono" href={`${EXPLORER}/address/${vault}`} target="_blank" rel="noopener noreferrer">{vault.slice(0, 6)}…{vault.slice(-4)} ↗</a>. Shares are 1:1 with deposits. Nothing here earns yield.</p>
+      <p className="cap dim">Vault <a className="mono" href={`${network.explorer}/address/${vault}`} target="_blank" rel="noopener noreferrer">{vault.slice(0, 6)}…{vault.slice(-4)} ↗</a>. Shares are 1:1 with deposits. Nothing here earns yield.</p>
     </div>
   );
 }

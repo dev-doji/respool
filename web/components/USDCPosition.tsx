@@ -1,25 +1,24 @@
 "use client";
-// Wallet and transaction logic for the Base Sepolia test-USDC vault. The calls, checks and encoding are unchanged;
+// Wallet and transaction logic for the test-USDC vault on either supported chain. The calls, checks and encoding are unchanged;
 // presentation lives in VaultView.
 
 import { useEffect, useState } from "react";
 import { parse } from "@/lib/usdc";
 import type { Wallet } from "./WalletPanel";
+import type { UsdcNetwork } from "@/lib/usdcNetworks";
 import { VaultView, type Action, type Notice, type Position, type Tab } from "./VaultView";
 
-const USDC = "0x036CbD53842c5426634e7929541eC2318f3dCF7e";
-const VAULT = process.env.NEXT_PUBLIC_BASE_SEPOLIA_USDC_VAULT;
-const BASE_SEPOLIA = 84532;
 const encode = (value: string | bigint) => BigInt(value).toString(16).padStart(64, "0");
 
-async function requireBase(wallet: Wallet) {
-  if (Number(await wallet.request({ method: "eth_chainId" })) !== BASE_SEPOLIA) {
-    throw new Error("Switch to Base Sepolia to continue.");
+async function requireChain(wallet: Wallet, network: UsdcNetwork) {
+  if (Number(await wallet.request({ method: "eth_chainId" })) !== network.id) {
+    throw new Error(`Switch to ${network.name} to continue.`);
   }
 }
 
-async function readPosition(wallet: Wallet, vault: string, account: string): Promise<Position> {
-  await requireBase(wallet);
+async function readPosition(wallet: Wallet, network: UsdcNetwork, account: string): Promise<Position> {
+  const { vault, usdc: USDC } = network;
+  await requireChain(wallet, network);
   async function call(to: string, data: string) {
     return BigInt(await wallet.request({ method: "eth_call", params: [{ to, data }, "latest"] }) as string);
   }
@@ -29,12 +28,12 @@ async function readPosition(wallet: Wallet, vault: string, account: string): Pro
     call(vault, "0x70a08231" + encode(account)),
     call(USDC, "0xdd62ed3e" + encode(account) + encode(vault)),
   ]);
-  await requireBase(wallet);
-  if (asset !== BigInt(USDC)) throw new Error("The configured vault asset does not match Base Sepolia USDC.");
+  await requireChain(wallet, network);
+  if (asset !== BigInt(USDC)) throw new Error(`The configured vault asset does not match ${network.name} USDC.`);
   return { usdc, shares, allowance };
 }
 
-export function USDCPosition({ wallet, account }: { wallet: Wallet; account: string }) {
+export function USDCPosition({ wallet, account, network }: { wallet: Wallet; account: string; network: UsdcNetwork }) {
   const [position, setPosition] = useState<Position>();
   const [input, setInput] = useState("");
   const [tab, setTab] = useState<Tab>("deposit");
@@ -42,24 +41,25 @@ export function USDCPosition({ wallet, account }: { wallet: Wallet; account: str
   const [notice, setNotice] = useState<Notice>();
   const [hash, setHash] = useState("");
   const amount = parse(input);
-  const vault = VAULT && /^0x[\da-f]{40}$/i.test(VAULT) ? VAULT : "";
+  const vault = network.vault;
+  const USDC = network.usdc;
   const say = (tone: Notice["tone"], text: string) => setNotice({ tone, text });
 
   useEffect(() => {
     if (!vault) return;
     let active = true;
-    readPosition(wallet, vault, account).then(
+    readPosition(wallet, network, account).then(
       (result) => { if (active) setPosition(result); },
       () => { if (active) say("error", "Could not read the test USDC vault. Use Refresh to try again."); },
     );
     return () => { active = false; };
-  }, [wallet, vault, account]);
+  }, [wallet, network, vault, account]);
 
   async function refresh() {
     setBusy(true);
     setNotice(undefined);
     try {
-      setPosition(await readPosition(wallet, vault, account));
+      setPosition(await readPosition(wallet, network, account));
     } catch {
       setPosition(undefined);
       say("error", "Could not read the test USDC vault.");
@@ -73,7 +73,7 @@ export function USDCPosition({ wallet, account }: { wallet: Wallet; account: str
     setNotice(undefined);
     setHash("");
     try {
-      const latest = await readPosition(wallet, vault, account);
+      const latest = await readPosition(wallet, network, account);
       setPosition(latest);
       if (amount === 0n || amount > (action === "redeem" ? latest.shares : latest.usdc)) {
         throw new Error("Enter an amount within your available balance.");
@@ -92,14 +92,14 @@ export function USDCPosition({ wallet, account }: { wallet: Wallet; account: str
       say("info", "Transaction submitted. Waiting for confirmation.");
       for (let attempt = 0; attempt < 20; attempt++) {
         await new Promise((resolve) => setTimeout(resolve, 1500));
-        await requireBase(wallet);
+        await requireChain(wallet, network);
         const receipt = await wallet.request({ method: "eth_getTransactionReceipt", params: [tx] }) as { status: string } | null;
         if (!receipt) continue;
         if (receipt.status !== "0x1") throw new Error("The transaction reverted.");
         say("ok", action === "approve" ? "Approved. You can deposit now." : action === "deposit" ? "Deposit confirmed." : "Withdrawal confirmed.");
         if (action !== "approve") setInput("");
         try {
-          setPosition(await readPosition(wallet, vault, account));
+          setPosition(await readPosition(wallet, network, account));
         } catch {
           setPosition(undefined);
           say("ok", "Transaction confirmed. Refresh to update your balances.");
@@ -118,7 +118,7 @@ export function USDCPosition({ wallet, account }: { wallet: Wallet; account: str
 
   return (
     <VaultView
-      vault={vault} position={position} input={input} tab={tab} busy={busy} notice={notice} hash={hash}
+      network={network} vault={vault} position={position} input={input} tab={tab} busy={busy} notice={notice} hash={hash}
       onInput={setInput} onTab={(t) => { setTab(t); setNotice(undefined); }} onAction={submit} onRefresh={refresh}
     />
   );

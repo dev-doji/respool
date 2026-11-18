@@ -1,6 +1,7 @@
 "use client";
 // Development-only: every state of VaultView with fake balances. Not linked from anywhere.
 import { useState } from "react";
+import { NETWORKS } from "@/lib/usdcNetworks";
 import { VaultView, type Notice, type Position, type Tab } from "./VaultView";
 
 const VAULT = "0x1234567890abcdef1234567890abcdef12345678";
@@ -32,7 +33,7 @@ function One({ s }: { s: Scenario }) {
     <section className="panel" aria-label={s.title}>
       <div className="panel-head"><h2 style={{ fontSize: 18 }}>{s.title}</h2></div>
       <VaultView
-        vault={s.vault ?? VAULT} position={s.position} input={input} tab={tab} busy={!!s.busy} notice={s.notice} hash={s.hash}
+        network={NETWORKS[0]} vault={s.vault ?? VAULT} position={s.position} input={input} tab={tab} busy={!!s.busy} notice={s.notice} hash={s.hash}
         onInput={setInput} onTab={setTab} onAction={() => {}} onRefresh={() => {}}
       />
     </section>

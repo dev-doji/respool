@@ -1,0 +1,14 @@
+{
+  "contract": "RespoolUSDCVault",
+  "chainId": 1301,
+  "network": "Unichain Sepolia",
+  "address": "0x69F358fA4D98EC89C243F634ffDd2135f7165FfB",
+  "asset": "0x31d0220469e10c4E71834a79b1f276d740d3768F",
+  "assetName": "Circle test USDC",
+  "deployer": "0x0326DBb448a879704b6a40D74D108485e1f25332",
+  "tx": "0x9b7bdab94b934fddf127d5c56804ce502335665a8260a464567d588374255eb7",
+  "block": 68150400,
+  "gasUsed": 951770,
+  "deployedOn": "2026-11-18",
+  "note": "Same custody pilot as the Base Sepolia vault: shares 1:1 with deposits, no yield, no owner or admin, no Reactive or Uniswap integration."
+}

@@ -363,3 +363,22 @@ details.more[open] summary svg { transform: rotate(180deg); }
 @media (max-width: 700px), (pointer: coarse) {
   .activity td a { display: inline-flex; align-items: center; min-height: 40px; }
 }
+
+/* ---------- liquidity map ---------- */
+.map-app { display: grid; gap: 28px; }
+.map-grid { display: grid; grid-template-columns: minmax(0, 1fr) 110px minmax(0, 1fr); gap: 14px; align-items: stretch; }
+.chain-card .kv { grid-template-columns: 1fr 1fr; }
+.chain-card .kv dd small { font-size: 12px; color: var(--muted); font-weight: 500; letter-spacing: 0; }
+.chain-card .you { border-top: 1px solid var(--line); padding-top: 14px; display: grid; gap: 8px; }
+.chain-card .you-kv { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.chain-card .you-kv dd { font-size: 17px; }
+.bridge-link { display: grid; place-content: center; justify-items: center; gap: 4px; text-align: center; border-top: 2px dashed var(--ink); border-bottom: 2px dashed var(--ink); align-self: center; min-height: 120px; padding: 10px 4px; }
+.bridge-link b { font-family: var(--g); font-weight: 600; font-size: 28px; letter-spacing: -.04em; }
+.banner.reco.hot { background: var(--accent-soft); border-color: #b6e9d6; }
+@media (max-width: 960px) {
+  .map-grid { grid-template-columns: 1fr; }
+  .bridge-link { min-height: 0; border-top: 0; border-bottom: 0; border-left: 2px dashed var(--ink); border-right: 2px dashed var(--ink); padding: 8px 14px; grid-auto-flow: column; gap: 10px; place-content: center; justify-self: center; }
+  .bridge-link b { font-size: 20px; }
+}
+@media (max-width: 620px) { .chain-card .you-kv { grid-template-columns: 1fr 1fr; } }
+.chain-card { align-content: start; }

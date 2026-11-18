@@ -23,7 +23,7 @@ export function Nav() {
           <a href="#vaults">Vaults</a>
           <a href="https://github.com/dev-doji/respool" rel="noopener">GitHub</a>
         </div>
-        <Link className="pbtn dark small" href="/app">Open app <Arrow /></Link>
+        <Link className="pbtn dark small" href="/app/map">Open app <Arrow /></Link>
       </nav>
     </header>
   );

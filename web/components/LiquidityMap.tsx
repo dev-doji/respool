@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { CHAIN_IDS, networkOf, readMap, readWatcher, readYou, type MapData, type WatcherStats, type YouView } from "@/lib/liquidity";
 import { recommend, type ChainId } from "@/lib/recommend";
 import { fmt } from "@/lib/units";
-import { WorldMap } from "./WorldMap";
+import { NetworkMap } from "./NetworkMap";
 import { NAMES } from "@/lib/format";
 
 const NAME: Record<ChainId, string> = { unichain: NAMES.unichain, base: NAMES.base };
@@ -109,11 +109,12 @@ export function LiquidityMap({ account, refreshKey, onSuggest }: { account?: str
         </div>
       </div>
 
-      <WorldMap
+      <NetworkMap
         activity={activity}
-        pool={data ? { unichain: data.chains.unichain.pool ? units(data.chains.unichain.pool.liquidity) : undefined, base: data.chains.base.pool ? units(data.chains.base.pool.liquidity) : undefined } : undefined}
+        pool={data ? { unichain: data.chains.unichain.pool ? Number(data.chains.unichain.pool.liquidity) / 1e18 : undefined, base: data.chains.base.pool ? Number(data.chains.base.pool.liquidity) / 1e18 : undefined } : undefined}
         flow={rec ? { from: rec.from, to: rec.to } : null}
         bridge={bridge ? { fillSec: bridge.fillSec, feePct: bridge.feePct } : undefined}
+        watcher={watcher}
       />
 
       <div className="map-grid">

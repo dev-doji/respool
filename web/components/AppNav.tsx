@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ThemeToggle } from "./ThemeToggle";
 import { WalletButton } from "./WalletButton";
 
 // The same pill nav as the overview page, with the wallet connect button where a dApp visitor expects it.
@@ -20,6 +21,7 @@ export function AppNav() {
           <Link href="/">Overview</Link>
           <Link href="/#latency">Latency</Link>
         </div>
+        <ThemeToggle />
         <WalletButton />
       </nav>
     </header>

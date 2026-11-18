@@ -14,8 +14,10 @@ export const viewport: Viewport = { themeColor: "#f7f7fa", width: "device-width"
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
+        {/* Sets the theme before first paint so a dark visitor never sees a white flash. */}
+        <script dangerouslySetInnerHTML={{ __html: `try{var t=localStorage.getItem("respool-theme");if(!t&&matchMedia("(prefers-color-scheme: dark)").matches)t="dark";if(t)document.documentElement.dataset.theme=t}catch(e){}` }} />
         {/* Loaded by the browser, not at build time, so builds never depend on a font download (same as Beeline). */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />

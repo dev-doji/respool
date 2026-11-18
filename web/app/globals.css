@@ -326,3 +326,8 @@ details.more[open] summary svg { transform: rotate(180deg); }
   .amount { font-size: 22px; }
 }
 @media (pointer: coarse) { .amount, .max { min-height: 48px; } .max { min-height: 40px; } }
+
+/* wallet error details */
+.banner .detail { margin-top: 8px; }
+.banner .detail summary { cursor: pointer; font-family: var(--m); font-size: 11.5px; text-transform: uppercase; letter-spacing: .05em; min-height: 32px; display: inline-flex; align-items: center; }
+.banner .detail pre { margin: 6px 0 0; padding: 10px 12px; background: rgba(255,255,255,.65); border: 1px solid rgba(22,22,42,.15); font-family: var(--m); font-size: 12px; line-height: 1.5; white-space: pre-wrap; overflow-wrap: anywhere; max-height: 220px; overflow: auto; user-select: all; }

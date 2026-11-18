@@ -23,6 +23,7 @@ const SCENARIOS: Scenario[] = [
   { title: "Waiting for wallet / chain", position: funded, input: "5", busy: true, notice: { tone: "info", text: "Transaction submitted. Waiting for confirmation." }, hash: "0xabc123" },
   { title: "Confirmed", position: { ...funded, shares: 15_000_000n }, notice: { tone: "ok", text: "Deposit confirmed." }, hash: "0xabc123" },
   { title: "Rejected in wallet", position: funded, input: "5", notice: { tone: "error", text: "The wallet request was cancelled." } },
+  { title: "Wallet error with details", position: funded, input: "5", notice: { tone: "error", text: "Your wallet could not reach Unichain Sepolia. Open the wallet's network settings for Unichain Sepolia and check its RPC address, or try again in a moment.", detail: ["code: -32603", "message: Internal JSON-RPC error."].join("\n") } },
   { title: "Reverted", position: funded, input: "5", notice: { tone: "error", text: "The transaction reverted." }, hash: "0xdef456" },
 ];
 

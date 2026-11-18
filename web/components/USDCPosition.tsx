@@ -4,6 +4,7 @@
 
 import { useEffect, useState } from "react";
 import { parse } from "@/lib/usdc";
+import { explainWalletError } from "@/lib/walletError";
 import type { Wallet } from "./WalletPanel";
 import type { UsdcNetwork } from "@/lib/usdcNetworks";
 import { VaultView, type Action, type Notice, type Position, type Tab } from "./VaultView";
@@ -43,7 +44,7 @@ export function USDCPosition({ wallet, account, network }: { wallet: Wallet; acc
   const amount = parse(input);
   const vault = network.vault;
   const USDC = network.usdc;
-  const say = (tone: Notice["tone"], text: string) => setNotice({ tone, text });
+  const say = (tone: Notice["tone"], text: string, detail?: string) => setNotice({ tone, text, detail });
 
   useEffect(() => {
     if (!vault) return;
@@ -108,9 +109,10 @@ export function USDCPosition({ wallet, account, network }: { wallet: Wallet; acc
       }
       say("info", "Confirmation is pending. Check the transaction before submitting again.");
     } catch (error) {
-      say("error", (error as { code?: number })?.code === 4001
-        ? "The wallet request was cancelled."
-        : error instanceof Error ? error.message : "The wallet request failed.");
+      // Show the wallet's real reason. The raw error also goes to the console for debugging.
+      console.error("[respool] wallet request failed", error);
+      const problem = explainWalletError(error, network.name);
+      say("error", problem.text, problem.detail);
     } finally {
       setBusy(false);
     }

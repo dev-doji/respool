@@ -7,7 +7,7 @@ import type { UsdcNetwork } from "@/lib/usdcNetworks";
 export type Tab = "deposit" | "withdraw";
 export type Action = "approve" | "deposit" | "redeem";
 export type Position = { usdc: bigint; shares: bigint; allowance: bigint };
-export type Notice = { tone: "info" | "ok" | "error"; text: string };
+export type Notice = { tone: "info" | "ok" | "error"; text: string; detail?: string };
 
 interface Props {
   /** Network the vault is on: its name and block explorer. */
@@ -91,6 +91,12 @@ export function VaultView({ network, vault, position, input, tab, busy, notice, 
             <div>
               <span>{notice.text}</span>
               {hash && <> <a href={`${network.explorer}/tx/${hash}`} target="_blank" rel="noopener noreferrer">View transaction ↗</a></>}
+              {notice.detail && (
+                <details className="detail">
+                  <summary>Details</summary>
+                  <pre>{notice.detail}</pre>
+                </details>
+              )}
             </div>
           </div>
         )}

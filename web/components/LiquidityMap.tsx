@@ -1,7 +1,7 @@
 "use client";
 // The live liquidity map: one card per chain, where the user's money is, and where liquidity is needed.
 import { useCallback, useEffect, useRef, useState } from "react";
-import { CHAIN_IDS, networkOf, readMap, readYou, type MapData, type YouView } from "@/lib/liquidity";
+import { CHAIN_IDS, networkOf, readMap, readWatcher, readYou, type MapData, type WatcherStats, type YouView } from "@/lib/liquidity";
 import { recommend, type ChainId } from "@/lib/recommend";
 import { fmt } from "@/lib/units";
 import { NAMES } from "@/lib/format";
@@ -44,6 +44,7 @@ function Card({ chain, data, you, hasAccount }: { chain: ChainId; data?: MapData
 export function LiquidityMap({ account, refreshKey, onSuggest }: { account?: string; refreshKey: number; onSuggest: (from: ChainId) => void }) {
   const [data, setData] = useState<MapData>();
   const [you, setYou] = useState<Partial<Record<ChainId, YouView>>>({});
+  const [watcher, setWatcher] = useState<WatcherStats>();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const running = useRef(false);
@@ -58,6 +59,7 @@ export function LiquidityMap({ account, refreshKey, onSuggest }: { account?: str
         account ? readYou("base", account) : Promise.resolve(undefined),
       ]);
       setData(map); setYou({ unichain: uni, base }); setError("");
+      readWatcher().then(setWatcher).catch(() => {});
     } catch (e) {
       setError(e instanceof Error ? e.message : "Could not read the chains");
     } finally {
@@ -115,6 +117,14 @@ export function LiquidityMap({ account, refreshKey, onSuggest }: { account?: str
         </div>
         <Card chain="base" data={data} you={you.base} hasAccount={!!account} />
       </div>
+      <p className="cap" style={{ marginTop: 10 }} role="status">
+        <b>Reactive is watching the Across bridge on both chains.</b>{" "}
+        {watcher
+          ? watcher.fills > 0
+            ? `It has seen ${watcher.deposits} deposit${watcher.deposits === 1 ? "" : "s"} and ${watcher.fills} ${watcher.fills === 1 ? "delivery" : "deliveries"}; deposit to delivery took ${watcher.lastSec} s last time (${watcher.avgSec} s on average, ${watcher.minSec}–${watcher.maxSec} s).`
+            : `It has seen ${watcher.deposits} deposit${watcher.deposits === 1 ? "" : "s"} so far and no deliveries yet.`
+          : "Reading its record…"}
+      </p>
       <p className="cap dim" style={{ marginTop: 10 }}>
         “Respool pool” is the pool Reactive manages; “recent swaps” is that pool&apos;s activity as the Reactive contract sees it. “USDC in the vault” is the custody vault&apos;s balance. “Can leave by bridge” is the most Across will fill in one transfer right now.
       </p>

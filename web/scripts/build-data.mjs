@@ -59,7 +59,7 @@ const lasna = dep(5318007), base = dep(84532), uni = dep(1301);
 const data = {
   generatedAt: new Date().toISOString(),
   chains: {
-    lasna: { id: 5318007, name: "Reactive Lasna", rpc: "https://lasna-rpc.rnk.dev/", explorer: "https://lasna.reactscan.net", brain: lasna.brain },
+    lasna: { id: 5318007, name: "Reactive Lasna", rpc: "https://lasna-rpc.rnk.dev/", explorer: "https://lasna.reactscan.net", brain: lasna.brain, bridgeWatcher: readJson("deployments/5318007-bridge-watcher.json").watcher },
     base: { id: 84532, name: "Base Sepolia", rpc: "https://sepolia.base.org", explorer: "https://sepolia.basescan.org", vault: base.vault, poolId: base.poolId, poolManager: base.poolManager, token0: base.token0, token1: base.token1, stateView: "0x571291b572ed32ce6751a2cb2486ebee8defb9b4" },
     unichain: { id: 1301, name: "Unichain Sepolia", rpc: "https://sepolia.unichain.org", explorer: "https://sepolia.uniscan.xyz", vault: uni.vault, poolId: uni.poolId, poolManager: uni.poolManager, token0: uni.token0, token1: uni.token1, stateView: "0xc199f1072a74d4e905aba1a84d9a45e2546b6222" },
   },

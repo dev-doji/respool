@@ -28,7 +28,7 @@ export interface EvmChain {
 export interface RespoolData {
   generatedAt: string;
   chains: {
-    lasna: { id: number; name: string; rpc: string; explorer: string; brain: string };
+    lasna: { id: number; name: string; rpc: string; explorer: string; brain: string; bridgeWatcher: string };
     base: EvmChain;
     unichain: EvmChain;
   };

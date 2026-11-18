@@ -17,6 +17,7 @@ Built for the Reactive hackathon track **Every Second Counts**. Full design: [do
 | `RespoolPolicy` decision rules | Done: 9 tests in `test/RespoolPolicy.t.sol`, including fuzz tests |
 | `RespoolToken` (test-only ERC-20) and `RespoolVault` | Done, tested locally: 18 tests in `test/RespoolVault.t.sol` against a real v4 PoolManager deployed in the test (recentre, depart, arrive, auth, duplicate and out-of-order callbacks, supply conserved across a move, leftover tokens parked in a one-sided limit position instead of idle). Deployed on Base Sepolia and Unichain Sepolia |
 | `RespoolBrain` (reactive contract) | Done, tested locally: 18 unit tests in `test/RespoolBrain.t.sol` (subscriptions, recentre rule, move rule, arrive only for the in-flight move, auth) using a mock of the Reactive system contract. Deployed on Lasna |
+| `RespoolBridgeWatcher` (reactive contract) | Done: 8 tests in `test/RespoolBridgeWatcher.t.sol` (subscriptions, owner-only setup, latency stats, duplicate / unknown / wrong-chain observations). **Live on Lasna** watching Across on Unichain Sepolia and Base Sepolia: it recorded one real 0.001 ETH transfer, deposit to fill 4 s by Reactive's clock (n = 1). Shown on the map page. Details in [docs/LATENCY.md](docs/LATENCY.md) |
 | End-to-end loop (**simulated**) | 3 tests in `test/RespoolLoop.t.sol`: real brain + two real vaults + a test relay standing in for Reactive Network. Shows recentre and a full cross-pool move. No real network, no timing |
 | Deploy scripts | Written ([docs/DEPLOY.md](docs/DEPLOY.md)). Full sequence rehearsed on local forks with `bash script/dryrun.sh` |
 | Live on testnets | **Lasna + Base Sepolia + Unichain Sepolia: deployed and working.** Recentre loops run on both chains; cross-chain moves run live in both directions (Unichain → Base and Base → Unichain). One duplicate callback delivery was seen live and skipped by the vault |
@@ -45,8 +46,8 @@ forge test
 
 Do not use `--recurse-submodules` or `--recursive`: Uniswap v4-core nests an OpenZeppelin repository that fails
 to clone. Only `solmate` is needed from inside v4-core, and the second command fetches just that. Checked on a
-fresh clone: `forge build` succeeds and `forge test` passes all 57 tests.
-`forge test` currently runs 57 tests; all pass.
+fresh clone: `forge build` succeeds and `forge test` passes all 65 tests.
+`forge test` currently runs 65 tests; all pass.
 
 ## Website
 
@@ -74,14 +75,16 @@ src/RespoolToken.sol         test-only ERC-20 the vaults mint and burn
 src/RespoolVault.sol         per-chain v4 position + Reactive callbacks (recentre / depart / arrive)
 src/RespoolUSDCVault.sol     test-USDC custody pilot used by the /app page, on Base and Unichain Sepolia (1:1 shares, no yield)
 src/RespoolBrain.sol         reactive contract for Lasna: watches both chains, requests callbacks
+src/RespoolBridgeWatcher.sol reactive contract for Lasna: watches Across deposits and fills
 test/RespoolPolicy.t.sol     unit + fuzz tests for the rules
 test/RespoolVault.t.sol      vault tests on a local Uniswap v4 PoolManager
 test/RespoolBrain.t.sol      brain unit tests with hand-built logs
+test/RespoolBridgeWatcher.t.sol  bridge watcher tests with hand-built Across logs
 test/RespoolLoop.t.sol       simulated end-to-end loop (brain + both vaults + test relay)
 test/utils/MockSystem.sol    test double for the Reactive system contract
 test/utils/V4Artifacts.sol   compiles PoolManager (solc 0.8.26) so tests can deploy it
 script/RespoolConfig.sol     per-chain addresses (checked on chain) and brain settings
-script/*.s.sol               DeployBrain, DeployChain, ConfigureBrain, Bootstrap, Swap
+script/*.s.sol               DeployBrain, DeployChain, ConfigureBrain, Bootstrap, Swap, DeployBridgeWatcher
 script/dryrun.sh             rehearse all scripts on local forks (needs anvil)
 deployments/                 addresses written by the scripts, one JSON per chain
 observer/observe.mjs         live latency observer and swap driver

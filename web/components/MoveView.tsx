@@ -185,7 +185,7 @@ export function YourMoves({ moves, now }: { moves: Move[]; now: number }) {
   return (
     <section className="activity" aria-labelledby="moves-title">
       <div className="panel-head"><h3 id="moves-title">Your moves</h3></div>
-      <p className="cap dim">Moves started in this browser. Each one is tracked on the destination chain until its fill appears.</p>
+      <p className="cap dim">Moves started in this browser. This page finds each delivery on the destination chain; the Reactive watcher records the same deposits and deliveries on Reactive Network (see the map).</p>
       {moves.length === 0 ? (
         <div className="banner"><span>No moves yet. When you move funds, each one shows up here with where it went and how long it took.</span></div>
       ) : (

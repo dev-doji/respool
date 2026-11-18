@@ -174,6 +174,24 @@ One real transfer of **0.001 ETH** from the deployer wallet, through Across's te
 - One sample, one asset, tiny amount. It shows the route works and is fast, not that it is reliable under load. Across's docs
   warn that unfilled testnet deposits are not refunded automatically.
 
+## Bridge watcher: Reactive observing an Across transfer (2026-11-18), n = 1
+
+`RespoolBridgeWatcher` (Lasna, `0x0A251D994D2DaE46Ef809eA83F30053BB7F6e8B0`) subscribes to Across `FundsDeposited` and
+`FilledRelay` on both SpokePools (every depositor, both directions) and records, per transfer, the Reactive time it saw
+the deposit and the fill. It only observes; it holds no user funds and calls nothing.
+
+A second real 0.001 ETH transfer, Unichain Sepolia to Base Sepolia (`web/scripts/bridge-test.mts`): deposit ID 6101,
+deposit tx `0x8ec542d9afcf7d30227abb63af1273ac454c7ac68ed48a8ae1d965f20071398b` (Unichain block 68157998), fill tx
+`0xbbeb593dd321c4602e6cde73438fbde3fe86c690e30374128b77a7020a268ffc` (Base block 60442801).
+
+- The watcher recorded **1 deposit, 1 fill, deposit to fill 4 s** (min 4, max 4, average 4) by Reactive's own clock,
+  whole seconds. That includes Reactive's observation delay on both sides, so it is a proxy for the bridge time, not
+  the chains' block-clock difference. One sample.
+- Only this transfer exists in the watcher's record: it was deployed just before it, and a fill seen before its
+  deposit is not timed.
+- Subscriptions are not filtered by depositor, so any Across transfer between these two chains counts. Testnet traffic
+  measured over about 100 minutes before deployment was one deposit and no fills, so the cost of watching everything is small.
+
 ## Deployment used
 
 | Contract | Chain | Address |

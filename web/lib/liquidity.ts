@@ -88,3 +88,15 @@ export async function readYou(chain: ChainId, account: string): Promise<YouView>
   const failed = [usdc, eth, shares].find((r) => r.status === "rejected");
   return { usdc: ok(usdc), eth: ok(eth), shares: ok(shares), error: failed ? "Could not read some balances" : undefined };
 }
+
+/** What the Reactive bridge watcher has recorded: Across deposits and fills it saw, and the deposit-to-fill time. */
+export interface WatcherStats { deposits: number; fills: number; lastSec: number; avgSec: number; minSec: number; maxSec: number }
+
+export async function readWatcher(): Promise<WatcherStats> {
+  const L = D.chains.lasna;
+  const get = async (sel: string) => Number(word(await ethCall(L.rpc, L.bridgeWatcher, sel)));
+  const [deposits, fills, lastSec, avgSec, minSec, maxSec] = await Promise.all([
+    get("0x323a5e0b"), get("0x6be69549"), get("0x453e6afa"), get("0x46d420d4"), get("0x8e564eac"), get("0xaaacebdf"),
+  ]);
+  return { deposits, fills, lastSec, avgSec, minSec, maxSec };
+}

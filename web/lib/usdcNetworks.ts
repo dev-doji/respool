@@ -11,6 +11,8 @@ export interface UsdcNetwork {
   vault: string;
   explorer: string;
   ethFaucet: string;
+  /** Public RPC, used to check receipts independently of the wallet's own node. */
+  rpc: string;
 }
 
 export const NETWORKS: UsdcNetwork[] = [
@@ -20,6 +22,7 @@ export const NETWORKS: UsdcNetwork[] = [
     usdc: "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
     vault: address(process.env.NEXT_PUBLIC_BASE_SEPOLIA_USDC_VAULT),
     explorer: "https://sepolia.basescan.org",
+    rpc: "https://sepolia.base.org",
     ethFaucet: "https://console.optimism.io/faucet",
   },
   {
@@ -28,6 +31,7 @@ export const NETWORKS: UsdcNetwork[] = [
     usdc: "0x31d0220469e10c4E71834a79b1f276d740d3768F",
     vault: address(process.env.NEXT_PUBLIC_UNICHAIN_SEPOLIA_USDC_VAULT),
     explorer: "https://sepolia.uniscan.xyz",
+    rpc: "https://sepolia.unichain.org",
     ethFaucet: "https://www.alchemy.com/faucets/unichain-sepolia",
   },
 ];

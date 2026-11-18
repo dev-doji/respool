@@ -55,6 +55,13 @@ export function VaultView({ network, vault, position, input, tab, busy, notice, 
         <div className="tile-stat mint"><dt className="sub">In the vault</dt><dd className="num-big">{position ? format(position.shares) : "–"}<small> USDC</small></dd></div>
       </dl>
 
+      {position && (
+        <p className="hint allow">
+          Approved for the vault: <b>{format(position.allowance)} USDC</b>
+          {position.allowance === 0n ? " (approve before depositing)" : ""}
+        </p>
+      )}
+
       <div className="seg" role="group" aria-label="Deposit or withdraw">
         <button type="button" aria-pressed={deposit} onClick={() => onTab("deposit")} disabled={busy}>Deposit</button>
         <button type="button" aria-pressed={!deposit} onClick={() => onTab("withdraw")} disabled={busy}>Withdraw</button>

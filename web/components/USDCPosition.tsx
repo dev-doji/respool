@@ -2,9 +2,13 @@
 // Wallet and transaction logic for the test-USDC vault on either supported chain. The calls, checks and encoding are unchanged;
 // presentation lives in VaultView.
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { addEntry, fetchReceipt, loadEntries, type Entry } from "@/lib/activity";
+import { settledPosition } from "@/lib/positionWait";
+import { amountFromReceipt, stateFromReceipt, type TxState } from "@/lib/receipt";
 import { parse } from "@/lib/usdc";
 import { explainWalletError } from "@/lib/walletError";
+import { ActivityTable, type ActivityRow } from "./ActivityTable";
 import type { Wallet } from "./WalletPanel";
 import type { UsdcNetwork } from "@/lib/usdcNetworks";
 import { VaultView, type Action, type Notice, type Position, type Tab } from "./VaultView";
@@ -46,6 +50,41 @@ export function USDCPosition({ wallet, account, network }: { wallet: Wallet; acc
   const USDC = network.usdc;
   const say = (tone: Notice["tone"], text: string, detail?: string) => setNotice({ tone, text, detail });
 
+  // An approval confirmed in this session. The wallet's node can lag, so a deposit trusts it over a stale read.
+  const approvedRef = useRef(0n);
+  const [entries, setEntries] = useState<Entry[]>([]);
+  const [checks, setChecks] = useState<Record<string, { state: TxState; amount?: bigint }>>({});
+  const checking = useRef(new Set<string>());
+
+  useEffect(() => { setEntries(loadEntries(network.id, account)); }, [network.id, account]);
+
+  // Check every recorded transaction against the chain by its receipt, through the public RPC.
+  useEffect(() => {
+    let live = true;
+    for (const entry of entries) {
+      const key = entry.hash.toLowerCase();
+      if (checks[key]?.state === "confirmed" || checks[key]?.state === "failed" || checking.current.has(key)) continue;
+      checking.current.add(key);
+      (async () => {
+        for (let attempt = 0; attempt < 15 && live; attempt++) {
+          try {
+            const receipt = await fetchReceipt(network.rpc, entry.hash);
+            if (receipt) {
+              const amount = amountFromReceipt(entry.kind, receipt, { account, vault, usdc: USDC });
+              if (live) setChecks((c) => ({ ...c, [key]: { state: stateFromReceipt(receipt), amount } }));
+              break;
+            }
+          } catch {
+            // The node may not know the transaction yet, or be briefly unreachable. Try again.
+          }
+          await new Promise((r) => setTimeout(r, 2000));
+        }
+        checking.current.delete(key);
+      })();
+    }
+    return () => { live = false; checking.current.clear(); };
+  }, [entries, checks, network.rpc, account, vault, USDC]);
+
   useEffect(() => {
     if (!vault) return;
     let active = true;
@@ -74,7 +113,11 @@ export function USDCPosition({ wallet, account, network }: { wallet: Wallet; acc
     setNotice(undefined);
     setHash("");
     try {
-      const latest = await readPosition(wallet, network, account);
+      const read = await readPosition(wallet, network, account);
+      // If the wallet's node has not yet caught up with an approval confirmed in this session, trust the approval.
+      const latest: Position = action === "deposit" && read.allowance < amount && approvedRef.current >= amount
+        ? { ...read, allowance: approvedRef.current }
+        : read;
       setPosition(latest);
       if (amount === 0n || amount > (action === "redeem" ? latest.shares : latest.usdc)) {
         throw new Error("Enter an amount within your available balance.");
@@ -97,14 +140,18 @@ export function USDCPosition({ wallet, account, network }: { wallet: Wallet; acc
         const receipt = await wallet.request({ method: "eth_getTransactionReceipt", params: [tx] }) as { status: string } | null;
         if (!receipt) continue;
         if (receipt.status !== "0x1") throw new Error("The transaction reverted.");
-        say("ok", action === "approve" ? "Approved. You can deposit now." : action === "deposit" ? "Deposit confirmed." : "Withdrawal confirmed.");
+        const done = action === "approve" ? "Approved. You can deposit now." : action === "deposit" ? "Deposit confirmed." : "Withdrawal confirmed.";
+        // Remember it, so the activity table shows it straight away (and checks it against the chain).
+        addEntry({ hash: tx, chainId: network.id, account: account.toLowerCase(), kind: action === "redeem" ? "withdraw" : action, amount: amount.toString(), at: Date.now() });
+        setEntries(loadEntries(network.id, account));
+        approvedRef.current = action === "approve" ? amount : action === "deposit" ? 0n : approvedRef.current;
         if (action !== "approve") setInput("");
-        try {
-          setPosition(await readPosition(wallet, network, account));
-        } catch {
-          setPosition(undefined);
-          say("ok", "Transaction confirmed. Refresh to update your balances.");
-        }
+        say("info", "Confirmed. Updating your balances…");
+        // The wallet's node can lag a block behind its own receipt. Wait for the chain's numbers to show the
+        // change; if they don't within the window, show what this transaction must have produced.
+        const settled = await settledPosition({ kind: action, before: latest, amount, read: () => readPosition(wallet, network, account) });
+        setPosition(settled.position);
+        say("ok", settled.confirmed ? done : `${done} Your wallet's connection is a little behind, so these balances are what the transaction produces. Use Refresh in a moment to double-check.`);
         return;
       }
       say("info", "Confirmation is pending. Check the transaction before submitting again.");
@@ -118,10 +165,18 @@ export function USDCPosition({ wallet, account, network }: { wallet: Wallet; acc
     }
   }
 
+  const rows: ActivityRow[] = entries.map((entry) => {
+    const check = checks[entry.hash.toLowerCase()];
+    return { entry, state: check?.state ?? "checking", amount: check?.amount ?? BigInt(entry.amount) };
+  });
+
   return (
-    <VaultView
-      network={network} vault={vault} position={position} input={input} tab={tab} busy={busy} notice={notice} hash={hash}
-      onInput={setInput} onTab={(t) => { setTab(t); setNotice(undefined); }} onAction={submit} onRefresh={refresh}
-    />
+    <>
+      <VaultView
+        network={network} vault={vault} position={position} input={input} tab={tab} busy={busy} notice={notice} hash={hash}
+        onInput={setInput} onTab={(t) => { setTab(t); setNotice(undefined); }} onAction={submit} onRefresh={refresh}
+      />
+      <ActivityTable rows={rows} network={network} account={account} />
+    </>
   );
 }

@@ -2,6 +2,8 @@
 // Development-only: every state of VaultView with fake balances. Not linked from anywhere.
 import { useState } from "react";
 import { NETWORKS } from "@/lib/usdcNetworks";
+import type { Entry } from "@/lib/activity";
+import { ActivityTable, type ActivityRow } from "./ActivityTable";
 import { VaultView, type Notice, type Position, type Tab } from "./VaultView";
 
 const VAULT = "0x1234567890abcdef1234567890abcdef12345678";
@@ -41,6 +43,32 @@ function One({ s }: { s: Scenario }) {
   );
 }
 
+const HASH = (n: number) => "0x" + n.toString(16).padStart(64, "a");
+const entry = (n: number, kind: Entry["kind"], amount: bigint, minutesAgo: number): Entry =>
+  ({ hash: HASH(n), chainId: 1301, account: "0x2f85930757a742a480ac1196fcd42a952077968a", kind, amount: amount.toString(), at: 1_790_000_000_000 - minutesAgo * 60_000 });
+const ROWS: Record<string, ActivityRow[]> = {
+  "Activity: empty": [],
+  "Activity: checking, confirmed, failed": [
+    { entry: entry(1, "withdraw", 2_000_000n, 1), state: "checking", amount: 2_000_000n },
+    { entry: entry(2, "deposit", 5_000_000n, 9), state: "confirmed", amount: 5_000_000n },
+    { entry: entry(3, "approve", 5_000_000n, 12), state: "confirmed", amount: 5_000_000n },
+    { entry: entry(4, "deposit", 50_000_000n, 30), state: "failed", amount: 50_000_000n },
+  ],
+};
+
+function Activities() {
+  return (
+    <>
+      {Object.entries(ROWS).map(([title, rows]) => (
+        <section className="panel" aria-label={title} key={title}>
+          <div className="panel-head"><h2 style={{ fontSize: 18 }}>{title}</h2></div>
+          <ActivityTable rows={rows} network={{ name: "Unichain Sepolia", explorer: "https://sepolia.uniscan.xyz" }} account="0x2f85930757A742A480AC1196fcD42a952077968a" />
+        </section>
+      ))}
+    </>
+  );
+}
+
 export function PreviewStates() {
-  return <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))", gap: 14, alignItems: "start" }}>{SCENARIOS.map((s) => <One key={s.title} s={s} />)}</div>;
+  return <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))", gap: 14, alignItems: "start" }}>{SCENARIOS.map((s) => <One key={s.title} s={s} />)}<Activities /></div>;
 }

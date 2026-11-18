@@ -29,6 +29,7 @@ Circle test USDC on Base Sepolia is 0x036CbD53842c5426634e7929541eC2318f3dCF7e. 
 - Frontend type check passed with npm --prefix web run typecheck.
 - The focused Foundry vault test passed. It covers deposit, partial redemption, excess redemption rejection, and share accounting after a direct token transfer.
 - **Also deployed on Unichain Sepolia** at 0x69F358fA4D98EC89C243F634ffDd2135f7165FfB (tx 0x9b7bdab94b934fddf127d5c56804ce502335665a8260a464567d588374255eb7, block 68150400; record deployments/1301-usdc-vault.json), wired to Circle's Unichain Sepolia USDC 0x31d0220469e10c4E71834a79b1f276d740d3768F. The app has a chain picker; set NEXT_PUBLIC_UNICHAIN_SEPOLIA_USDC_VAULT as well as the Base variable.
+- **First real wallet transaction, 2026-11-18:** an approval of 5 test USDC for the Unichain vault, tx 0x71da882a...0d93 (block 68152141, success). It exposed a stale-balance bug (the wallet's node lagged its own receipt), fixed in the app with a wait-until-reflected step and an expected-balance fallback. Deposit and withdraw are still untried.
 - Deployed and checked on chain: asset() is Circle's Base Sepolia USDC, name/symbol/decimals are correct, totalSupply is 0, and simulated deposit-without-allowance, deposit(0) and redeem-without-shares all revert. A real browser-wallet deposit and withdrawal are still unverified (the deployer wallet holds no test USDC; Circle's faucet needs a browser).
 
 ## RainbowKit integration verification

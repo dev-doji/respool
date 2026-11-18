@@ -30,7 +30,7 @@ export function Band() {
         <Prompt />{COMMANDS[1]}{"\n"}
         <Prompt />{COMMANDS[2]}{"\n"}
         <Prompt />{COMMANDS[3]}{"\n"}
-        <Prompt />{COMMANDS[4]}{"         "}<span className="c"># 48 tests</span>{"\n"}
+        <Prompt />{COMMANDS[4]}{"         "}<span className="c"># 57 tests</span>{"\n"}
         <Prompt />{COMMANDS[5]}
       </pre>
     </Reveal>

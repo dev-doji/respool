@@ -23,7 +23,7 @@ Built for the Reactive hackathon track **Every Second Counts**. Full design: [do
 | Latency | **Four live batches; in every one, every swap completed its recentre loop** ([docs/LATENCY.md](docs/LATENCY.md)). Latest batch (brain v4, 34 swaps), full loop, block clock: recentre on Base median 1.6 s (p95 2.4 s), recentre on Unichain median 2.0 s (p95 3.0 s, whole-second clock), cross-chain move median 3.4 s (p95 4.0 s, only 5 moves, so indicative). Earlier batches (up to 30 swaps) gave similar figures. No Ethereum Sepolia baseline yet |
 | Move direction | Batches 1 and 2 moved liquidity toward Base 24 times out of 24, whatever the trading pattern. Batch 3 (volume-based demand) then went one way again, toward Unichain. Batch 4 (demand = recent swap count): **balanced alternating trading moved nothing (0 of 10 swaps); bursts of 6 swaps moved liquidity toward the busy chain in both directions** (5 moves in 24 swaps). Tests lock this in |
 | Latency observer | `observer/observe.mjs` (Node 18+, no dependencies): `run` drives swaps and records loops, `summary` prints median / p95 (`RESULTS_FILE` picks the batch, default `results/loops.jsonl`) |
-| Website | `web/`: a Next.js 15 app (same versions as Beeline: next 15.5.29, react 19.1.1, TypeScript 5.9.2) in the usebeeline.xyz look. Replays any of the 39 recorded loops step by step, plots every loop with median and p95, and reads both vaults and the brain live from the chains in your browser. `npm run typecheck` and `npm run build` pass; checked in a browser with no console errors. The `/app` page connects a wallet (RainbowKit) and has a test-USDC vault panel; the vault it talks to is **not deployed yet**, so the panel shows "Not deployed" and deposits are off. **Not hosted anywhere yet**; run it locally (see Website below) |
+| Website | `web/`: a Next.js 15 app (same versions as Beeline: next 15.5.29, react 19.1.1, TypeScript 5.9.2) in the usebeeline.xyz look. Replays any of the 39 recorded loops step by step, plots every loop with median and p95, and reads both vaults and the brain live from the chains in your browser. `npm run typecheck` and `npm run build` pass; checked in a browser with no console errors. The `/app` page connects a wallet (RainbowKit) and has a test-USDC vault panel; its test-USDC vault (`RespoolUSDCVault`, a plain 1:1 custody pilot with no yield) is **deployed on Base Sepolia** at `0x58E05155d38F747292929Fd25D242d282A319c29`, but a real wallet deposit has not been tried yet. **Not hosted anywhere yet**; run it locally (see Website below) |
 | Known limits | After a full crossing a vault holds one token and cannot rebuild a two-sided position at the new price without an outside venue; leftover tokens go into a one-sided limit position (13 top-ups in batch 1, 2 in batch 2, 0 in batch 4). The move rule has only been run with the driver's evenly spaced swaps, not real trading. One move needs about 3.4 s end to end, so a burst shorter than that is over before liquidity arrives. See LATENCY.md |
 
 ## Requirements
@@ -44,8 +44,8 @@ forge test
 
 Do not use `--recurse-submodules` or `--recursive`: Uniswap v4-core nests an OpenZeppelin repository that fails
 to clone. Only `solmate` is needed from inside v4-core, and the second command fetches just that. Checked on a
-fresh clone: `forge build` succeeds and `forge test` passes all 48 tests.
-`forge test` currently runs 48 tests; all pass.
+fresh clone: `forge build` succeeds and `forge test` passes all 57 tests.
+`forge test` currently runs 57 tests; all pass.
 
 ## Website
 
@@ -71,6 +71,7 @@ src/RespoolPolicy.sol        pure decision rules (range, EWMA demand, move rule)
 src/RespoolLiquidity.sol     liquidity-for-amounts maths
 src/RespoolToken.sol         test-only ERC-20 the vaults mint and burn
 src/RespoolVault.sol         per-chain v4 position + Reactive callbacks (recentre / depart / arrive)
+src/RespoolUSDCVault.sol     Base Sepolia test-USDC custody pilot used by the /app page (1:1 shares, no yield)
 src/RespoolBrain.sol         reactive contract for Lasna: watches both chains, requests callbacks
 test/RespoolPolicy.t.sol     unit + fuzz tests for the rules
 test/RespoolVault.t.sol      vault tests on a local Uniswap v4 PoolManager

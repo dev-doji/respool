@@ -4,6 +4,11 @@ import { encodeFunctionData, parseAbi, type Hex } from "viem";
 import { rpc, topic } from "./rpc.ts";
 
 export const ACROSS_API = "https://testnet.across.to/api";
+/** Across SpokePool on each testnet chain (checked on chain: live, not paused). Keyed by chain id. */
+export const SPOKE_POOLS: Record<number, string> = {
+  1301: "0x6999526e507Cc3b03b180BbE05E1Ff938259A874", // Unichain Sepolia
+  84532: "0x82B564983aE7274c86695917BBf8C99ECb6F0F8F", // Base Sepolia
+};
 /** Wrapped ETH on both OP Stack chains. Across moves native ETH as WETH. */
 export const WETH = "0x4200000000000000000000000000000000000006";
 /** event FundsDeposited, emitted by the origin SpokePool. Topics: [sig, destinationChainId, depositId, depositor]. */

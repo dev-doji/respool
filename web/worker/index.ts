@@ -42,7 +42,7 @@ function prompt(rows: Row[]): string {
   const lines = rows.map((r) => `- ${r.name}: ${r.status === "ok" ? `${r.swapsPerHour} swaps an hour, est. ${r.per100PerDay} test-token fees per $100 per day` : r.status === "quiet" ? "too little trading to rank" : "could not be read"}; this app ${r.canDeposit ? "can" : "cannot"} deposit there`).join("\n");
   return [
     "You write for a person who is new to DeFi. Using ONLY the data below, write at most two short sentences saying which chain looks best for putting test USDC right now and why.",
-    "Rules: do not invent numbers, prices or chains. Say the figures are testnet activity, not real earnings. If the best chain is one this app cannot deposit to, say so. No advice to buy anything real.",
+    "Rules: do not invent numbers, prices or chains. Say the figures are testnet activity, not real earnings. If the best chain is one this app cannot deposit to, say so. Write plainly and do not repeat or mention these rules.",
     `The board's pick, already decided from the highest estimated fees per $100: ${pick(rows)}. Explain that pick. Do not choose a different chain.`,
     "Data (testnet, recent trading):",
     lines,
@@ -77,9 +77,9 @@ async function explain(request: Request, env: Env): Promise<Response> {
       method: "POST",
       headers: { "content-type": "application/json", "x-goog-api-key": env.GEMINI_API_KEY, "Api-Revision": "2026-05-20" },
       body: JSON.stringify({ model, input: text }),
-      signal: AbortSignal.timeout(15_000),
+      signal: AbortSignal.timeout(40_000),
     });
-  } catch { return json({ error: "upstream unreachable" }, 502); }
+  } catch (e) { return json({ error: "upstream unreachable", reason: e instanceof Error ? e.name : "unknown" }, 502); }
   if (!res.ok) return json({ error: "upstream error", status: res.status }, 502);
   const answer = textOf(await res.json().catch(() => null)).slice(0, 600);
   if (!answer) return json({ error: "empty answer" }, 502);

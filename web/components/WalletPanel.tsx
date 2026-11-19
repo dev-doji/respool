@@ -20,7 +20,7 @@ function Step({ n, done, title, children }: { n: number; done?: boolean; title: 
   );
 }
 
-export function WalletPanel({ embedded = false, preferChainId, onChanged }: { embedded?: boolean; preferChainId?: number; onChanged?: () => void }) {
+export function WalletPanel({ embedded = false, preferChainId, onChanged, activityTarget }: { embedded?: boolean; preferChainId?: number; onChanged?: () => void; activityTarget?: HTMLElement | null }) {
   const { address, chainId, connector, isConnected } = useAccount();
   const { switchChain, isPending: switching } = useSwitchChain();
   const [pick, setPick] = useState(NETWORKS[0].id);
@@ -97,7 +97,7 @@ export function WalletPanel({ embedded = false, preferChainId, onChanged }: { em
           )
           : error ? <div className="banner error" role="alert"><span>{error}</span></div>
           : !wallet ? <div className="banner" role="status"><span className="spinner" aria-hidden="true" /><span>Reading your wallet connection…</span></div>
-          : <USDCPosition key={connectionId} account={address} wallet={wallet} network={active} onChanged={onChanged} />}
+          : <USDCPosition key={connectionId} account={address} wallet={wallet} network={active} onChanged={onChanged} activityTarget={activityTarget} />}
       </section>
     </div>
   );

@@ -3,6 +3,7 @@
 // The wallet signs one or two transactions on the origin chain; a relayer delivers on the destination chain,
 // which this panel then watches until the fill appears.
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { formatUnits } from "viem";
 import { useSwitchChain } from "wagmi";
 import { approveCall, blockTimestamp, depositCall, depositIdFromReceipt, fetchQuote, findFill, SPOKE_POOLS, WETH, type Call, type Quote } from "@/lib/across";
@@ -49,7 +50,7 @@ async function waitUntil(check: () => Promise<boolean>, timeoutMs: number) {
 
 const IDLE: Progress = { phase: "idle", usdc: false };
 
-export function MovePanel({ suggestedFrom, onChanged, onArrived }: { suggestedFrom?: ChainId; onChanged: () => void; onArrived?: (to: ChainId) => void }) {
+export function MovePanel({ suggestedFrom, onChanged, onArrived, activityTarget }: { suggestedFrom?: ChainId; onChanged: () => void; onArrived?: (to: ChainId) => void; activityTarget?: HTMLElement | null }) {
   const { address, chainId, isConnected, wallet, error: walletError } = useWallet();
   const { switchChain, isPending: switching } = useSwitchChain();
   const [asset, setAsset] = useState<Asset>("usdc");
@@ -230,8 +231,7 @@ export function MovePanel({ suggestedFrom, onChanged, onArrived }: { suggestedFr
   const idleAfter = () => { if (progress.phase === "done" || progress.phase === "error") setProgress(IDLE); };
 
   return (
-    <div className="split">
-      <div className="split-main">
+    <>
       <MoveView
         asset={asset} from={from} to={to} text={text} balance={balance} quote={quote} problem={problem}
         connected={isConnected && !walletError} wrongChain={wrongChain} switching={switching} needsApproval={needsApproval} ready={ready}
@@ -244,8 +244,7 @@ export function MovePanel({ suggestedFrom, onChanged, onArrived }: { suggestedFr
         onGo={() => void execute()}
       />
       {walletError && <div className="banner error" role="alert"><span>{walletError}</span></div>}
-      </div>
-      {isConnected && <div className="split-side"><YourMoves moves={moves} now={now} /></div>}
-    </div>
+      {isConnected && (activityTarget ? createPortal(<YourMoves moves={moves} now={now} />, activityTarget) : <YourMoves moves={moves} now={now} />)}
+    </>
   );
 }

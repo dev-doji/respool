@@ -380,11 +380,15 @@ details.more[open] summary svg { transform: rotate(180deg); }
 
 /* ---------- liquidity map ---------- */
 .simple-app { display: grid; gap: 18px; }
-.split { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 18px; align-items: start; }
-.split-main { display: grid; gap: 14px; }
-.split-side .activity { margin-top: 0; border-top: 0; padding-top: 0; }
-.split-side .activity table { min-width: 0; }
-@media (max-width: 980px) { .split { grid-template-columns: 1fr; } }
+.two-col { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px; align-items: start; }
+.col-actions { display: grid; gap: 18px; min-width: 0; }
+.col-activity { display: grid; gap: 12px; min-width: 0; position: sticky; top: 84px; }
+.col-title { font-family: var(--g); font-weight: 600; font-size: 24px; letter-spacing: -.035em; margin: 0; }
+.activity-slot { display: grid; gap: 18px; min-width: 0; }
+.activity-slot .activity { border-top: 0; padding-top: 0; }
+.activity-slot .activity table { min-width: 0; }
+.activity-slot .activity:not(:first-child) { border-top: 1px solid var(--line); padding-top: 18px; }
+@media (max-width: 980px) { .two-col { display: grid; grid-template-columns: 1fr; } .col-activity { position: static; } }
 .seg.tabs { display: flex; }
 .seg.tabs button { flex: 1; }
 .seg button[aria-selected="true"] { background: var(--ink); color: var(--on-ink); }
@@ -496,3 +500,12 @@ dl.quote dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; 
 .nextstep > div { flex: 1 1 auto; }
 @media (max-width: 720px) { .flow-strip { grid-template-columns: 1fr; } .nextstep { flex-direction: column; align-items: stretch; } }
 .app-grid.embedded { grid-template-columns: 1fr; }
+
+.board { display: grid; gap: 12px; }
+.bars { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
+.bar-top { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+.best { font: 600 11px var(--m); text-transform: uppercase; letter-spacing: .05em; background: var(--accent); color: var(--ink); padding: 2px 6px; margin-left: 6px; }
+.bar { height: 14px; background: var(--bg-2); border: 1px solid var(--ink); margin: 6px 0 4px; }
+.bar i { display: block; height: 100%; background: var(--ink); transition: width .6s var(--ease); }
+.bar-note { overflow-wrap: anywhere; }
+@media (prefers-reduced-motion: reduce) { .bar i { transition: none; } }

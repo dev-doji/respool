@@ -3,6 +3,7 @@
 // presentation lives in VaultView.
 
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { addEntry, fetchReceipt, loadEntries, type Entry } from "@/lib/activity";
 import { settledPosition } from "@/lib/positionWait";
 import { amountFromReceipt, stateFromReceipt, type TxState } from "@/lib/receipt";
@@ -41,7 +42,7 @@ async function readPosition(wallet: Wallet, network: UsdcNetwork, account: strin
   return { usdc, shares, allowance, earned: val(extra[0]), ratePerSecond: val(extra[1]), totalShares: val(extra[2]) };
 }
 
-export function USDCPosition({ wallet, account, network, onChanged }: { wallet: Wallet; account: string; network: UsdcNetwork; onChanged?: () => void }) {
+export function USDCPosition({ wallet, account, network, onChanged, activityTarget }: { wallet: Wallet; account: string; network: UsdcNetwork; onChanged?: () => void; activityTarget?: HTMLElement | null }) {
   const [position, setPosition] = useState<Position>();
   const [input, setInput] = useState("");
   const [tab, setTab] = useState<Tab>("deposit");
@@ -187,7 +188,7 @@ export function USDCPosition({ wallet, account, network, onChanged }: { wallet: 
         network={network} vault={vault} position={position} input={input} tab={tab} busy={busy} notice={notice} hash={hash}
         onInput={setInput} onTab={(t) => { setTab(t); setNotice(undefined); }} onAction={submit} onRefresh={refresh}
       />
-      <ActivityTable rows={rows} network={network} account={account} />
+      {activityTarget ? createPortal(<ActivityTable rows={rows} network={network} account={account} />, activityTarget) : <ActivityTable rows={rows} network={network} account={account} />}
     </>
   );
 }

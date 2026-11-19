@@ -3,6 +3,7 @@
   //   npx wrangler deploy --config wrangler.static.jsonc
   "name": "respool-web",
   "compatibility_date": "2026-11-17",
-  "assets": { "directory": "./out", "not_found_handling": "404-page" },
+  "main": "worker/index.ts",
+  "assets": { "directory": "./out", "binding": "ASSETS", "not_found_handling": "404-page", "run_worker_first": ["/api/*"] },
   "routes": [{ "pattern": "respool.foniolabs.xyz", "custom_domain": true }]
 }

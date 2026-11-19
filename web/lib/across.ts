@@ -118,15 +118,19 @@ export async function findFill(rpcUrl: string, spokePool: string, originChainId:
   const log = logs[0];
   if (!log) return null;
   let timestamp = log.blockTimestamp ? Number(BigInt(log.blockTimestamp)) : 0;
-  if (!timestamp) {
-    const block = await rpc<{ timestamp: string }>(rpcUrl, "eth_getBlockByNumber", [log.blockNumber, false]);
-    timestamp = Number(BigInt(block.timestamp));
-  }
+  if (!timestamp) timestamp = await blockTimestamp(rpcUrl, log.blockNumber);
   return { tx: log.transactionHash, block: Number(BigInt(log.blockNumber)), timestamp };
 }
 
-/** Block time in whole seconds. */
-export async function blockTimestamp(rpcUrl: string, blockNumberHex: string): Promise<number> {
-  const block = await rpc<{ timestamp: string }>(rpcUrl, "eth_getBlockByNumber", [blockNumberHex, false]);
-  return Number(BigInt(block.timestamp));
+/**
+ * Block time in whole seconds. A public RPC node can answer `null` for a block that the wallet's node (and the receipt)
+ * already has, so this retries for a while instead of crashing. Throws only if the block never shows up.
+ */
+export async function blockTimestamp(rpcUrl: string, blockNumberHex: string, attempts = 15, delayMs = 1000): Promise<number> {
+  for (let i = 0; i < attempts; i++) {
+    const block = await rpc<{ timestamp: string } | null>(rpcUrl, "eth_getBlockByNumber", [blockNumberHex, false]).catch(() => null);
+    if (block?.timestamp) return Number(BigInt(block.timestamp));
+    if (i < attempts - 1) await new Promise((r) => setTimeout(r, delayMs));
+  }
+  throw new Error("The chain's public node has not returned this block yet.");
 }

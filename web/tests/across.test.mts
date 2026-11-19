@@ -55,3 +55,23 @@ test("a token deposit (USDC) sends no ETH value; approve targets the token", () 
   assert.equal(approve.to, usdcU);
   assert.equal(approve.data.slice(0, 10), "0x095ea7b3"); // approve(address,uint256)
 });
+
+test("a public node that answers null for a fresh block is retried, not a crash", async () => {
+  const { blockTimestamp } = await import("../lib/across.ts");
+  const realFetch = globalThis.fetch;
+  let calls = 0;
+  globalThis.fetch = (async () => {
+    calls++;
+    const result = calls < 3 ? null : { timestamp: "0x6553f100" };
+    return new Response(JSON.stringify({ jsonrpc: "2.0", id: 1, result }));
+  }) as typeof fetch;
+  try {
+    assert.equal(await blockTimestamp("http://rpc.test", "0x10", 5, 1), 0x6553f100);
+    assert.equal(calls, 3);
+    calls = -100; // never returns a block: fails with a clear message after the attempts
+    globalThis.fetch = (async () => new Response(JSON.stringify({ jsonrpc: "2.0", id: 1, result: null }))) as typeof fetch;
+    await assert.rejects(() => blockTimestamp("http://rpc.test", "0x10", 2, 1), /has not returned this block yet/);
+  } finally {
+    globalThis.fetch = realFetch;
+  }
+});

@@ -45,7 +45,12 @@ export function VaultView({ network, vault, position, input, tab, busy, notice, 
   const needsApproval = deposit && !!position && amount > 0n && !problem && position.allowance < amount;
   const action: Action = !deposit ? "redeem" : needsApproval ? "approve" : "deposit";
   const label = action === "redeem" ? "Withdraw" : action === "approve" ? "Approve test USDC" : "Deposit";
-  const blocker = !position ? "Balances are not loaded yet." : amount === 0n ? "" : problem;
+  const emptyHere = !deposit && !!position && position.shares === 0n;
+  // Always say why the main button is greyed out, instead of leaving it silently disabled.
+  const blocker = !position ? "Balances are not loaded yet."
+    : emptyHere ? `Nothing in the vault on ${network.name}. If you deposited on the other chain, switch to it to withdraw.`
+    : amount === 0n ? (deposit ? "Enter an amount." : "Enter an amount, or press Max to withdraw everything.")
+    : problem;
   const disabled = busy || !position || amount === 0n || !!problem;
 
   return (

@@ -3,7 +3,7 @@
 // previewed with fake data, and all wallet and bridge logic lives in MovePanel.
 import { useEffect, useState } from "react";
 import { networkOf } from "@/lib/liquidity";
-import type { Move, Asset } from "@/lib/moves";
+import { moveWaitState, waitedText, type Move, type Asset } from "@/lib/moves";
 import type { ChainId } from "@/lib/recommend";
 import { fmt } from "@/lib/units";
 
@@ -196,7 +196,8 @@ export function YourMoves({ moves, now }: { moves: Move[]; now: number }) {
             <tbody>
               {moves.map((m) => {
                 const filled = !!m.fill;
-                const stale = !filled && now - m.startedAt > 10 * 60_000;
+                const waited = now - m.startedAt;
+                const stale = !filled && moveWaitState(waited) === "slow";
                 return (
                   <tr key={m.id}>
                     <td data-label="When"><When at={m.startedAt} /></td>
@@ -206,8 +207,14 @@ export function YourMoves({ moves, now }: { moves: Move[]; now: number }) {
                     <td data-label="Status">
                       <span className={`state ${filled ? "confirmed" : stale ? "failed" : "checking"}`}>
                         {!filled && !stale && <span className="spinner" aria-hidden="true" />}
-                        {filled ? `Arrived in ~${Math.max(0, (m.fill?.timestamp ?? 0) - m.depositTs)} s` : stale ? "No fill seen" : "Waiting for fill"}
+                        {filled ? `Arrived in ~${Math.max(0, (m.fill?.timestamp ?? 0) - m.depositTs)} s` : stale ? `Still pending · ${waitedText(waited)}` : `Waiting for delivery · ${waitedText(waited)}`}
                       </span>
+                      {stale && (
+                        <p className="cap dim pending-note">
+                          Not delivered yet. The funds are held by the Across contract on {m.from === "base" ? "Base" : "Unichain"} until a relayer delivers them. Testnet relayers can be slow, and an unfilled testnet deposit is not refunded automatically.{" "}
+                          <a href={`https://testnet.across.to/api/deposit/status?originChainId=${m.from === "base" ? 84532 : 1301}&depositTxnRef=${m.id}`} target="_blank" rel="noopener noreferrer">Check Across status ↗</a>
+                        </p>
+                      )}
                     </td>
                     <td data-label="Transactions">
                       {txLink(m.from, m.id, "Open the deposit transaction on the explorer")}

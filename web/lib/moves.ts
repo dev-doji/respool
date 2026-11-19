@@ -62,3 +62,16 @@ export function saveMove(move: Move): void {
     // Not remembering is fine; the transfer itself already happened.
   }
 }
+
+/** How long a move has been waiting, in plain words: "45 s", "5 min", "1 h 20 min". */
+export function waitedText(ms: number): string {
+  const s = Math.max(0, Math.floor(ms / 1000));
+  if (s < 90) return `${s} s`;
+  const m = Math.floor(s / 60);
+  return m < 60 ? `${m} min` : `${Math.floor(m / 60)} h ${m % 60} min`;
+}
+
+/** Waiting for a delivery: "waiting" at first, "slow" after 10 minutes (the funds are still held by the bridge). */
+export function moveWaitState(ms: number): "waiting" | "slow" {
+  return ms > 10 * 60_000 ? "slow" : "waiting";
+}

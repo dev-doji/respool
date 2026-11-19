@@ -85,3 +85,20 @@ test("settledPosition treats a failing read as not-yet, not as fatal", async () 
   assert.equal(out.confirmed, true);
   assert.equal(out.position.shares, 5_000_000n);
 });
+
+test("funds on another chain are pointed out; funds on the viewed chain or none are not", async () => {
+  const { fundsElsewhere } = await import("../lib/funds.ts");
+  const rows = [{ id: 1301, wallet: 0n, vault: 5_000_000n }, { id: 84532, wallet: 9n, vault: 0n }];
+  assert.equal(fundsElsewhere(rows, 84532)?.id, 1301);
+  assert.equal(fundsElsewhere(rows, 1301), undefined);
+  assert.equal(fundsElsewhere([{ id: 1301, wallet: 1n, vault: 0n }, { id: 84532, wallet: 1n, vault: 0n }], 84532), undefined);
+});
+
+test("waiting time reads in plain words and flips to slow after 10 minutes", async () => {
+  const { waitedText, moveWaitState } = await import("../lib/moves.ts");
+  assert.equal(waitedText(45_000), "45 s");
+  assert.equal(waitedText(5 * 60_000), "5 min");
+  assert.equal(waitedText(80 * 60_000), "1 h 20 min");
+  assert.equal(moveWaitState(9 * 60_000), "waiting");
+  assert.equal(moveWaitState(25 * 60_000), "slow");
+});

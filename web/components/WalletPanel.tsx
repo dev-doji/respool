@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useAccount, useSwitchChain } from "wagmi";
 import { NETWORKS, networkById } from "@/lib/usdcNetworks";
+import { FundsAcrossChains } from "./FundsAcrossChains";
 import { USDCPosition } from "./USDCPosition";
 import { VaultView } from "./VaultView";
 
@@ -79,6 +80,7 @@ export function WalletPanel() {
             <button key={n.id} type="button" aria-pressed={active.id === n.id} disabled={switching} onClick={() => choose(n.id)}>{n.name}</button>
           ))}
         </div>
+        {isConnected && address && <FundsAcrossChains account={address} activeId={active.id} switching={switching} onSwitch={choose} />}
         <p className="app-note">Deposit test USDC and get the same amount back as vault shares. Withdraw any time. This pilot only holds your coins: no yield, and no cross-chain moves yet.</p>
         {!active.vault ? <VaultView network={active} vault="" input="" tab="deposit" busy={false} onInput={noop} onTab={noop} onAction={noop} onRefresh={noop} />
           : !isConnected || !address ? <div className="banner" role="status"><span>Connect a wallet to see your balance and use the vault.</span></div>

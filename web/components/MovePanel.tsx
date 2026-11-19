@@ -230,7 +230,8 @@ export function MovePanel({ suggestedFrom, onChanged, onArrived }: { suggestedFr
   const idleAfter = () => { if (progress.phase === "done" || progress.phase === "error") setProgress(IDLE); };
 
   return (
-    <>
+    <div className="split">
+      <div className="split-main">
       <MoveView
         asset={asset} from={from} to={to} text={text} balance={balance} quote={quote} problem={problem}
         connected={isConnected && !walletError} wrongChain={wrongChain} switching={switching} needsApproval={needsApproval} ready={ready}
@@ -243,7 +244,8 @@ export function MovePanel({ suggestedFrom, onChanged, onArrived }: { suggestedFr
         onGo={() => void execute()}
       />
       {walletError && <div className="banner error" role="alert"><span>{walletError}</span></div>}
-      {isConnected && <YourMoves moves={moves} now={now} />}
-    </>
+      </div>
+      {isConnected && <div className="split-side"><YourMoves moves={moves} now={now} /></div>}
+    </div>
   );
 }

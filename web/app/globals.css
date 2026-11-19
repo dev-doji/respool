@@ -379,7 +379,12 @@ details.more[open] summary svg { transform: rotate(180deg); }
 }
 
 /* ---------- liquidity map ---------- */
-.simple-app { display: grid; gap: 18px; max-width: 760px; }
+.simple-app { display: grid; gap: 18px; }
+.split { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+.split-main { display: grid; gap: 14px; }
+.split-side .activity { margin-top: 0; border-top: 0; padding-top: 0; }
+.split-side .activity table { min-width: 0; }
+@media (max-width: 980px) { .split { grid-template-columns: 1fr; } }
 .seg.tabs { display: flex; }
 .seg.tabs button { flex: 1; }
 .seg button[aria-selected="true"] { background: var(--ink); color: var(--on-ink); }

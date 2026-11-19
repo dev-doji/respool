@@ -3,7 +3,7 @@ import { AppNav } from "@/components/AppNav";
 import { HomeApp } from "@/components/HomeApp";
 import { WalletProviders } from "@/components/WalletProviders";
 
-export const metadata: Metadata = { title: "Respool app: follow the liquidity, earn on it" };
+export const metadata: Metadata = { title: "Respool app: move your USDC and earn" };
 
 export default function AppPage() {
   return (
@@ -15,7 +15,7 @@ export default function AppPage() {
           <div className="app-top">
             <div>
               <p className="cap">testnet · unichain sepolia and base sepolia · play money only</p>
-              <h1>Follow the liquidity</h1>
+              <h1>Move and earn</h1>
             </div>
           </div>
           <HomeApp />

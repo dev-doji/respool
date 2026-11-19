@@ -77,7 +77,7 @@ TypeScript, wagmi, viem, RainbowKit.
 
 ### Links
 
-- Code: github.com/dev-doji/respool (**currently private: make it public before submitting if the hackathon requires it**)
+- Code: https://github.com/dev-doji/respool (public)
 - Demo video: _add the YouTube link here_
 
 ---

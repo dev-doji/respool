@@ -509,3 +509,23 @@ dl.quote dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; 
 .bar i { display: block; height: 100%; background: var(--ink); transition: width .6s var(--ease); }
 .bar-note { overflow-wrap: anywhere; }
 @media (prefers-reduced-motion: reduce) { .bar i { transition: none; } }
+
+/* Deposit card: chain cards, one stat row, one wide button */
+.chain-pick { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.cp { text-align: left; display: grid; gap: 6px; padding: 14px 16px; border: 1px solid var(--line); background: var(--card); cursor: pointer; font: inherit; color: inherit; min-height: 44px; }
+.cp[aria-pressed="true"] { border: 2px solid var(--ink); padding: 13px 15px; background: var(--bg-2); }
+.cp:not([aria-pressed="true"]):hover { border-color: var(--ink); }
+.cp-name { font-weight: 600; font-size: 15px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.cp-flag { font: 600 10.5px var(--m); text-transform: uppercase; letter-spacing: .05em; background: var(--accent); color: var(--ink); padding: 2px 6px; }
+.cp-line { display: flex; justify-content: space-between; gap: 8px; font-size: 13px; }
+.cp-line small { color: var(--muted); }
+.cp-line b { font-variant-numeric: tabular-nums; }
+.stat-row { margin: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.stat-row > div { border: 1px solid var(--line); background: var(--card); padding: 12px 14px; display: grid; gap: 2px; align-content: start; }
+.stat-row dd { margin: 0; font-family: var(--g); font-weight: 600; font-size: 24px; letter-spacing: -.03em; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.stat-row dd small { font: 500 12px var(--m); color: var(--muted); letter-spacing: 0; }
+.linkbtn { background: none; border: 0; padding: 0; font: inherit; color: var(--real); text-decoration: underline; cursor: pointer; justify-self: start; }
+.linkbtn:disabled { color: var(--muted); cursor: default; text-decoration: none; }
+.pbtn.wide { width: 100%; justify-content: center; }
+.act-row:has(.wide) { display: grid; gap: 8px; }
+@media (max-width: 560px) { .chain-pick, .stat-row { grid-template-columns: 1fr; } }

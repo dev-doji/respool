@@ -1,10 +1,10 @@
 "use client";
-// Shows the visitor's test USDC on every chain, and points them to the right chain when their vault balance
-// is somewhere other than the one the wallet is on (the vault card only shows the chain the wallet is set to).
+// Two cards, one per chain, showing the visitor's wallet and deposited USDC. Clicking one switches the wallet to it,
+// so a card also marks where deposited money is when the wallet is on the other chain.
 import { useEffect, useState } from "react";
-import { fundsElsewhere, readFunds, type ChainFunds } from "@/lib/funds";
+import { readFunds, type ChainFunds } from "@/lib/funds";
 import { format } from "@/lib/usdc";
-import { NETWORKS, type UsdcNetwork } from "@/lib/usdcNetworks";
+import { NETWORKS } from "@/lib/usdcNetworks";
 
 export function FundsAcrossChains({ account, activeId, switching, onSwitch }: {
   account: string; activeId: number; switching: boolean; onSwitch(id: number): void;
@@ -24,36 +24,19 @@ export function FundsAcrossChains({ account, activeId, switching, onSwitch }: {
     return () => { live = false; clearInterval(id); };
   }, [account, activeId]);
 
-  const other = funds ? fundsElsewhere(funds, activeId) : undefined;
-  const otherNet: UsdcNetwork | undefined = other ? NETWORKS.find((n) => n.id === other.id) : undefined;
-
   return (
-    <div className="funds" aria-label="Your funds on each chain">
-      <p className="sub">Your funds on each chain</p>
-      <ul className="funds-list">
-        {NETWORKS.map((n) => {
-          const f = funds?.find((x) => x.id === n.id);
-          const has = !!f && f.vault > 0n;
-          return (
-            <li key={n.id} className={has ? "has" : ""}>
-              <span className="tick" aria-hidden="true">{has ? "✓" : "–"}</span>
-              <b>{n.name}</b>
-              <span className="mono">{f ? `${format(f.wallet)} in wallet · ${format(f.vault)} in vault` : "reading…"}</span>
-              {n.id === activeId && <span className="tag">viewing</span>}
-            </li>
-          );
-        })}
-      </ul>
-      {other && otherNet && (
-        <div className="banner ok" role="status">
-          <div>
-            <span>You have <b>{format(other.vault)} USDC</b> in the vault on {otherNet.name}. To withdraw it to your wallet, switch to {otherNet.name}.</span>{" "}
-            <button type="button" className="pbtn small" disabled={switching} onClick={() => onSwitch(otherNet.id)}>
-              {switching ? "Switching…" : `Switch to ${otherNet.name}`}
-            </button>
-          </div>
-        </div>
-      )}
+    <div className="chain-pick" role="group" aria-label="Choose a network">
+      {NETWORKS.map((n) => {
+        const f = funds?.find((x) => x.id === n.id);
+        const active = n.id === activeId;
+        return (
+          <button key={n.id} type="button" className="cp" aria-pressed={active} disabled={switching} onClick={() => !active && onSwitch(n.id)}>
+            <span className="cp-name">{n.name}{!active && f && f.vault > 0n && <span className="cp-flag">money here</span>}</span>
+            <span className="cp-line"><small>In wallet</small><b>{f ? format(f.wallet) : "…"}</b></span>
+            <span className="cp-line"><small>Deposited</small><b>{f ? format(f.vault) : "…"}</b></span>
+          </button>
+        );
+      })}
     </div>
   );
 }

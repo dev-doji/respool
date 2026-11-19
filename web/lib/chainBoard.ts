@@ -26,6 +26,8 @@ export const BOARD_CHAINS: BoardChain[] = [
 /** keccak256("Swap(bytes32,address,int128,int128,uint160,uint128,int24,uint24)") */
 export const SWAP_TOPIC = "0x40e9cecb9f5f1f1c5b9c97dec2917b7ee92e57ba5563708daca94dd84ad7112f";
 export const WINDOW_SEC = 30 * 60;
+/** A chain with too little trading in the first window is read again over this longer one. */
+export const WIDE_WINDOW_SEC = 6 * 60 * 60;
 export const MIN_SWAPS = 3;
 /** At most this many eth_getLogs calls per chain per reading, so a fast chain with a small range limit reads a shorter window. */
 const MAX_CALLS = 10;
@@ -53,7 +55,7 @@ export interface ChainStats {
   swaps: number;
   windowSec: number;
   swapsPerHour: number;
-  /** The pool with the most swaps in the window. */
+  /** The pool with the most swaps in the window, among pools that charge a fee. */
   poolId?: string;
   pools: number;
   liquidity?: bigint;
@@ -83,7 +85,8 @@ export function summarise(chain: BoardChain, swaps: Swap[], windowSec: number): 
   for (const s of swaps) byPool.set(s.pool, [...(byPool.get(s.pool) ?? []), s]);
   base.pools = byPool.size;
   let best: Swap[] = [];
-  for (const list of byPool.values()) if (list.length > best.length) best = list;
+  // A pool whose fee is zero pays depositors nothing, however busy it is, so it is never the one compared.
+  for (const list of byPool.values()) if (list[list.length - 1].fee > 0 && list.length > best.length) best = list;
   if (best.length < MIN_SWAPS || windowSec <= 0) return base;
   const last = best[best.length - 1];
   const earned = best.reduce((sum, s) => sum + swapYield(s), 0);
@@ -101,7 +104,9 @@ export function rank(stats: ChainStats[]): ChainStats[] {
 export function explainFallback(ranked: ChainStats[]): string {
   const top = ranked[0];
   if (!top || top.status !== "ok") return "No chain has enough recent testnet trading to compare right now. Check again in a few minutes.";
-  const where = top.chain.vault ? "You can deposit there in this app." : "This app cannot deposit or move there yet, so it is shown for comparison only.";
+  const usable = ranked.find((r) => r.chain.vault && r.status === "ok");
+  const where = top.chain.vault ? "You can deposit there in this app."
+    : `This app cannot deposit or move there yet, so it is shown for comparison only.${usable ? ` The best you can use here is ${usable.chain.name}.` : ""}`;
   const quiet = ranked.filter((r) => r.status !== "ok").map((r) => r.chain.name);
   return `${top.chain.name} looks best right now: about ${top.swapsPerHour.toFixed(0)} swaps an hour in its busiest pool, which is thinly backed, so each deposited dollar would have earned the most test fees. ${where}${quiet.length ? ` ${quiet.join(" and ")} had too little trading to rank.` : ""} Testnet trading is mostly bots, so this shows where test activity is, not real earnings.`;
 }
@@ -120,12 +125,21 @@ async function logsIn(chain: BoardChain, from: number, to: number) {
 const stamp = async (chain: BoardChain, block: number) =>
   Number((await rpc<{ timestamp: string }>(chain.rpc, "eth_getBlockByNumber", ["0x" + block.toString(16), false])).timestamp);
 
+async function readWindow(chain: BoardChain, head: number, seconds: number): Promise<{ stats: ChainStats; blocks: number }> {
+  const blocks = Math.min(Math.ceil(seconds / chain.blockSec), chain.maxRange * MAX_CALLS - 1);
+  const from = Math.max(0, head - blocks);
+  const [logs, t0, t1] = await Promise.all([logsIn(chain, from, head), stamp(chain, from), stamp(chain, head)]);
+  return { stats: summarise(chain, logs.map(decodeSwap), Math.max(1, t1 - t0)), blocks };
+}
+
 export async function readChain(chain: BoardChain): Promise<ChainStats> {
   try {
     const head = Number(await rpc<string>(chain.rpc, "eth_blockNumber"));
-    const from = Math.max(0, head - Math.min(Math.ceil(WINDOW_SEC / chain.blockSec), chain.maxRange * MAX_CALLS - 1));
-    const [logs, t0, t1] = await Promise.all([logsIn(chain, from, head), stamp(chain, from), stamp(chain, head)]);
-    return summarise(chain, logs.map(decodeSwap), Math.max(1, t1 - t0));
+    const first = await readWindow(chain, head, WINDOW_SEC);
+    if (first.stats.status === "ok") return first.stats;
+    // Too quiet to rank over half an hour: look further back (as far as this chain's RPC lets one reading go).
+    const wide = await readWindow(chain, head, WIDE_WINDOW_SEC);
+    return wide.blocks > first.blocks ? wide.stats : first.stats;
   } catch (e) {
     return { chain, status: "error", swaps: 0, windowSec: 0, swapsPerHour: 0, pools: 0, error: e instanceof Error ? e.message : "unavailable" };
   }

@@ -32,12 +32,19 @@ function cleanRows(input: unknown): Row[] | null {
   return rows;
 }
 
+function pick(rows: Row[]): string {
+  const ok = rows.filter((r) => r.status === "ok" && r.per100PerDay !== null);
+  if (ok.length === 0) return "none (no chain has enough trading to rank)";
+  return ok.reduce((a, b) => ((b.per100PerDay ?? 0) > (a.per100PerDay ?? 0) ? b : a)).name;
+}
+
 function prompt(rows: Row[]): string {
   const lines = rows.map((r) => `- ${r.name}: ${r.status === "ok" ? `${r.swapsPerHour} swaps an hour, est. ${r.per100PerDay} test-token fees per $100 per day` : r.status === "quiet" ? "too little trading to rank" : "could not be read"}; this app ${r.canDeposit ? "can" : "cannot"} deposit there`).join("\n");
   return [
     "You write for a person who is new to DeFi. Using ONLY the data below, write at most two short sentences saying which chain looks best for putting test USDC right now and why.",
     "Rules: do not invent numbers, prices or chains. Say the figures are testnet activity, not real earnings. If the best chain is one this app cannot deposit to, say so. No advice to buy anything real.",
-    "Data (testnet, last half hour):",
+    `The board's pick, already decided from the highest estimated fees per $100: ${pick(rows)}. Explain that pick. Do not choose a different chain.`,
+    "Data (testnet, recent trading):",
     lines,
   ].join("\n");
 }

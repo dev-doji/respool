@@ -83,3 +83,26 @@ test("the explanation names the best chain, says when the app cannot use it, and
 test("no data at all gives a plain 'nothing to compare', never an invented winner", () => {
   assert.match(explainFallback(rank([summarise(BASE, [], 1800)])), /No chain has enough/);
 });
+
+test("a busy pool that charges no fee is skipped: it pays depositors nothing", () => {
+  const swaps = [
+    ...Array.from({ length: 9 }, () => decodeSwap(log(POOL_B, 1000n, 100_000n, 0))),
+    ...Array.from({ length: 4 }, () => decodeSwap(log(POOL_A, 1000n, 100_000n, 3000))),
+  ];
+  const s = summarise(BASE, swaps, 1800);
+  assert.equal(s.poolId, POOL_A);
+  assert.equal(s.swapsPerHour, 8);
+});
+
+test("if every busy pool is fee-free the chain is 'quiet', not a zero bar", () => {
+  const swaps = Array.from({ length: 9 }, () => decodeSwap(log(POOL_B, 1000n, 100_000n, 0)));
+  assert.equal(summarise(BASE, swaps, 1800).status, "quiet");
+});
+
+test("when the top chain cannot be used here, the explanation names the best one that can", () => {
+  const thin = Array.from({ length: 4 }, () => decodeSwap(log(POOL_A, 1000n, 1_000n)));
+  const deep = Array.from({ length: 4 }, () => decodeSwap(log(POOL_A, 1000n, 1_000_000n)));
+  const arb = summarise(BOARD_CHAINS.find((c) => c.key === "arbitrum")!, thin, 1800);
+  const text = explainFallback(rank([arb, summarise(BASE, deep, 1800)]));
+  assert.match(text, /The best you can use here is Base Sepolia/);
+});

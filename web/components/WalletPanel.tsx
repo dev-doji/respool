@@ -76,15 +76,16 @@ export function WalletPanel({ embedded = false, preferChainId, onChanged, activi
       <section className="panel" aria-labelledby="usdc-title">
         <div className="panel-head">
           <h2 id="usdc-title">{embedded ? "Deposit and earn" : "Test USDC vault"}</h2>
-          <span className="tag"><span className={`live-dot${active.vault ? "" : " off"}`} />{active.vault ? active.name : "Not deployed"}</span>
+          {!embedded && <span className="tag"><span className={`live-dot${active.vault ? "" : " off"}`} />{active.vault ? active.name : "Not deployed"}</span>}
         </div>
-        <div className="seg" role="group" aria-label="Network">
-          {NETWORKS.map((n) => (
-            <button key={n.id} type="button" aria-pressed={active.id === n.id} disabled={switching} onClick={() => choose(n.id)}>{n.name}</button>
-          ))}
-        </div>
-        {isConnected && address && <FundsAcrossChains account={address} activeId={active.id} switching={switching} onSwitch={choose} />}
-        <p className="app-note">Deposit test USDC and get the same amount back, any time. While it is deposited it earns test rewards (a worthless test token paid by the vault, not trading fees). Need test coins? <a href="https://faucet.circle.com" target="_blank" rel="noopener noreferrer">Test USDC ↗</a> · <a href={active.ethFaucet} target="_blank" rel="noopener noreferrer">Test ETH ↗</a></p>
+        {isConnected && address ? <FundsAcrossChains account={address} activeId={active.id} switching={switching} onSwitch={choose} /> : (
+          <div className="seg tabs" role="group" aria-label="Network">
+            {NETWORKS.map((n) => (
+              <button key={n.id} type="button" aria-pressed={active.id === n.id} disabled={switching} onClick={() => choose(n.id)}>{n.name}</button>
+            ))}
+          </div>
+        )}
+        <p className="app-note">Put test USDC in and take the same amount out any time. While it is in, it earns test rewards (a worthless test token, not trading fees). Need test coins? <a href="https://faucet.circle.com" target="_blank" rel="noopener noreferrer">USDC ↗</a> · <a href={active.ethFaucet} target="_blank" rel="noopener noreferrer">ETH for gas ↗</a></p>
         {!active.vault ? <VaultView network={active} vault="" input="" tab="deposit" busy={false} onInput={noop} onTab={noop} onAction={noop} onRefresh={noop} />
           : !isConnected || !address ? <div className="banner" role="status"><span>Connect a wallet to see your balance and use the vault.</span></div>
           : !onActive ? (

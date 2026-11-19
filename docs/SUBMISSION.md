@@ -50,7 +50,7 @@ Four live batches were run; in every one, every swap completed its re-centre loo
 - Move ETH or USDC between Unichain Sepolia and Base Sepolia through Across, tracked to delivery.
 - Reactive bridge watcher that records Across deposits and fills.
 - One-page flow: get a "next step" from your own balances, move USDC to the busy chain, deposit it and watch test rewards accrue (1:1 redeemable, test token, not trading fees).
-- 83 Foundry tests (policy, vault on a real v4 PoolManager, brain, simulated loop, USDC vault, earn vault, bridge watcher) and 29 web tests.
+- 83 Foundry tests (policy, vault on a real v4 PoolManager, brain, simulated loop, USDC vault, earn vault, bridge watcher) and 32 web tests.
 
 ### Tech stack
 

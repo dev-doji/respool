@@ -74,40 +74,32 @@ export function VaultView({ network, vault, position, input, tab, busy, notice, 
 
   return (
     <div className="vault-view">
-      <dl className="tiles">
-        <div className="tile-stat sky"><dt className="sub">Wallet balance</dt><dd className="num-big">{position ? format(position.usdc) : "–"}<small> USDC</small></dd></div>
-        <div className="tile-stat mint"><dt className="sub">In the vault</dt><dd className="num-big">{position ? format(position.shares) : "–"}<small> USDC</small></dd></div>
-      </dl>
-
-      {position && liveEarned !== undefined && (
-        <div className="earn-box">
+      <dl className="stat-row">
+        <div><dt className="sub">In your wallet</dt><dd>{position ? format(position.usdc) : "–"}<small> USDC</small></dd></div>
+        <div><dt className="sub">Deposited</dt><dd>{position ? format(position.shares) : "–"}<small> USDC</small></dd></div>
+        {position && liveEarned !== undefined && (
           <div>
-            <span className="sub">Test rewards earned</span>
-            <b className="earn-num">{fmt(liveEarned, 18, 4)} <small>tRSP</small></b>
-            <p className="hint">
-              {position.shares > 0n
-                ? `Your share of the pool is ${sharePct.toFixed(sharePct < 10 ? 1 : 0)}%${perDay !== undefined ? `. The vault pays ${dayText(perDay)} tRSP a day to everyone deposited` : ""}.`
-                : `Deposit to start earning your share${perDay !== undefined ? ` of ${dayText(perDay)} tRSP a day` : ""}.`}
-            </p>
+            <dt className="sub">Rewards earned</dt>
+            <dd>{fmt(liveEarned, 18, 2)}<small> tRSP</small></dd>
+            <button type="button" className="linkbtn" disabled={busy || liveEarned === 0n} onClick={() => onAction("claim")}>Claim</button>
           </div>
-          <button type="button" className="pbtn small" disabled={busy || liveEarned === 0n} onClick={() => onAction("claim")}>Claim</button>
-        </div>
-      )}
-
-      {position && (
-        <p className="hint allow">
-          Approved for the vault: <b>{format(position.allowance)} USDC</b>
-          {position.allowance === 0n ? " (approve before depositing)" : ""}
+        )}
+      </dl>
+      {position && liveEarned !== undefined && (
+        <p className="hint">
+          {position.shares > 0n
+            ? `Your share of the pool is ${sharePct.toFixed(sharePct < 10 ? 1 : 0)}%${perDay !== undefined ? `, out of ${dayText(perDay)} tRSP a day paid to everyone deposited` : ""}.`
+            : `Deposit to start earning${perDay !== undefined ? ` your share of ${dayText(perDay)} tRSP a day` : ""}.`}
         </p>
       )}
 
-      <div className="seg" role="group" aria-label="Deposit or withdraw">
+      <div className="seg tabs" role="group" aria-label="Deposit or withdraw">
         <button type="button" aria-pressed={deposit} onClick={() => onTab("deposit")} disabled={busy}>Deposit</button>
         <button type="button" aria-pressed={!deposit} onClick={() => onTab("withdraw")} disabled={busy}>Withdraw</button>
       </div>
 
       <div>
-        <label className="sub" htmlFor="usdc-amount">Amount in test USDC</label>
+        <label className="sub" htmlFor="usdc-amount">{deposit ? "Amount to deposit" : "Amount to withdraw"}</label>
         <div className="field-row">
           <input
             id="usdc-amount" className="amount" inputMode="decimal" autoComplete="off" placeholder="0.00"
@@ -117,16 +109,14 @@ export function VaultView({ network, vault, position, input, tab, busy, notice, 
           <button type="button" className="pbtn small max" disabled={busy || !max || max === 0n} onClick={() => max !== undefined && onInput(format(max))}>Max</button>
         </div>
         <p id="amount-hint" className={`hint${problem ? " bad" : ""}`}>
-          {problem || (deposit ? `Needs a little ${network.name} ETH for gas.` : "Withdrawing returns test USDC to your wallet 1:1.")}
+          {problem || (deposit ? `You also need a little ${network.name} ETH for gas.` : "Comes back to your wallet 1:1.")}
         </p>
       </div>
 
       <div className="act-row">
-        <button type="button" className="pbtn dark" disabled={disabled} onClick={() => onAction(action)}>
-          {busy && <span className="spinner" aria-hidden="true" />}{busy ? "Waiting…" : label}
+        <button type="button" className="pbtn dark wide" disabled={disabled} onClick={() => onAction(action)}>
+          {busy && <span className="spinner" aria-hidden="true" />}{busy ? "Waiting for your wallet…" : needsApproval ? `${label} first (step 1 of 2)` : amount > 0n && !problem ? `${label} ${format(amount)} USDC` : label}
         </button>
-        <button type="button" className="pbtn" disabled={busy} onClick={onRefresh}>Refresh</button>
-        {needsApproval && !busy && <span className="hint">Step 1 of 2: approve, then deposit.</span>}
         {!busy && disabled && blocker && !problem && <span className="hint">{blocker}</span>}
       </div>
 
@@ -148,7 +138,7 @@ export function VaultView({ network, vault, position, input, tab, busy, notice, 
         )}
       </div>
 
-      <p className="cap dim">Vault <a className="mono" href={`${network.explorer}/address/${vault}`} target="_blank" rel="noopener noreferrer">{vault.slice(0, 6)}…{vault.slice(-4)} ↗</a>. Your deposit is 1:1 and always yours to withdraw. Rewards are a test token paid by the vault, not trading fees.</p>
+      <p className="cap dim"><button type="button" className="linkbtn" disabled={busy} onClick={onRefresh}>Refresh balances</button> · Vault <a className="mono" href={`${network.explorer}/address/${vault}`} target="_blank" rel="noopener noreferrer">{vault.slice(0, 6)}…{vault.slice(-4)} ↗</a>. Your deposit is 1:1 and always yours to withdraw.</p>
     </div>
   );
 }

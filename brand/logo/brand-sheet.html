@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Respool brand sheet</title>
+<style>
+  :root { --ink:#16162a; --green:#2ed3a2; --deep:#0b7a5a; --soft:#d9f6ec; --bg:#f7f7fa; --night:#0e0e1a; }
+  * { box-sizing: border-box; }
+  body { margin:0; padding:40px; width:1400px; background:#fff; color:var(--ink); font:15px/1.5 "Space Grotesk","Inter",system-ui,sans-serif; }
+  h1 { font-size:30px; letter-spacing:-.03em; margin:0 0 4px; } p { margin:0; color:#5d5e73; }
+  .grid { display:grid; gap:16px; margin-top:24px; }
+  .row2 { grid-template-columns: 1fr 1fr; } .row4 { grid-template-columns: repeat(4,1fr); }
+  .tile { border:1px solid #e6e6ee; padding:28px; display:flex; align-items:center; justify-content:center; min-height:190px; }
+  .tile img { max-width:100%; }
+  .light { background:var(--bg); } .dark { background:var(--ink); }
+  h2 { font:600 11.5px "JetBrains Mono",ui-monospace,monospace; text-transform:uppercase; letter-spacing:.06em; margin:34px 0 0; }
+  .sw { border:1px solid #e6e6ee; } .sw i { display:block; height:84px; } .sw div { padding:10px 12px; font:12px "JetBrains Mono",ui-monospace,monospace; }
+  .sw b { display:block; font:600 14px "Space Grotesk",sans-serif; }
+  .icons { display:flex; align-items:flex-end; gap:22px; } .icons figure { margin:0; text-align:center; font:11px "JetBrains Mono",monospace; color:#5d5e73; }
+  .icons img { display:block; margin:0 auto 6px; } .ico { border-radius:22%; }
+  ul { margin:8px 0 0; padding-left:18px; color:#44445a; } li { margin:3px 0; }
+</style></head><body>
+<h1>Respool: logo and brand</h1>
+<p>Symbol: a spool unwinding. Ink thread bands over a green base. Wordmark: lowercase, rounded strokes that match the bands.</p>
+
+<div class="grid row2">
+  <div class="tile light"><img src="respool-lockup.svg" alt="Respool logo on light" width="560"></div>
+  <div class="tile dark"><img src="respool-lockup-reversed.svg" alt="Respool logo reversed on dark" width="560"></div>
+</div>
+
+<h2>Colour</h2>
+<div class="grid row4">
+  <div class="sw"><i style="background:#16162a"></i><div><b>Ink</b>#16162a · bands, wordmark</div></div>
+  <div class="sw"><i style="background:#2ed3a2"></i><div><b>Respool green</b>#2ed3a2 · base, accents</div></div>
+  <div class="sw"><i style="background:#0b7a5a"></i><div><b>Deep green</b>#0b7a5a · green text on light</div></div>
+  <div class="sw"><i style="background:#f7f7fa"></i><div><b>Mist</b>#f7f7fa · light background</div></div>
+</div>
+
+<h2>Symbol, app icon and small sizes</h2>
+<div class="grid row2">
+  <div class="tile light"><div class="icons">
+    <figure><img src="respool-symbol.svg" width="128" alt="">symbol</figure>
+    <figure><img class="ico" src="respool-app-icon.svg" width="128" alt="">app icon</figure>
+    <figure><img class="ico" src="respool-app-icon.svg" width="64" alt="">64</figure>
+    <figure><img class="ico" src="respool-app-icon.svg" width="32" alt="">32</figure>
+    <figure><img class="ico" src="respool-app-icon.svg" width="16" alt="">16</figure>
+  </div></div>
+  <div class="tile" style="align-items:flex-start;justify-content:flex-start"><div>
+    <b>Usage</b>
+    <ul>
+      <li>Clear space around the logo: the height of one thread band, all sides.</li>
+      <li>Minimum size: symbol 16 px, full logo 96 px wide.</li>
+      <li>On dark, use the reversed version (white bands, same green base).</li>
+      <li>Don't recolour the base, stretch it, or add effects.</li>
+    </ul></div></div>
+</div>
+</body></html>

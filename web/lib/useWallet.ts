@@ -12,7 +12,8 @@ export function useWallet() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    if (!key || !connector) return;
+    // While a saved connection is being restored the connector can be a plain record without getProvider yet: wait for the real one.
+    if (!key || !connector || typeof connector.getProvider !== "function") return;
     let live = true;
     setError("");
     connector.getProvider({ chainId }).then((provider) => {

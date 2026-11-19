@@ -14,8 +14,7 @@ export function AppNav() {
         <Link className="pnav-name" href="/">Respool</Link>
         <div className="pnav-line" aria-hidden="true"><i /><i /><i /><i /><i /></div>
         <div className="pnav-links">
-          <Link href="/app/map">Map</Link>
-          <Link href="/app">Vault</Link>
+          <Link href="/app">App</Link>
           <Link href="/">Overview</Link>
           <Link href="/#latency">Latency</Link>
         </div>

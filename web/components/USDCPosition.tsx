@@ -35,10 +35,13 @@ async function readPosition(wallet: Wallet, network: UsdcNetwork, account: strin
   ]);
   await requireChain(wallet, network);
   if (asset !== BigInt(USDC)) throw new Error(`The configured vault asset does not match ${network.name} USDC.`);
-  return { usdc, shares, allowance };
+  // Rewards are extra: if a vault has none (or the read fails) the deposit and withdrawal still work.
+  const extra = await Promise.allSettled([call(vault, "0x008cc262" + encode(account)), call(vault, "0x7b0a47ee"), call(vault, "0x18160ddd")]);
+  const val = (r: PromiseSettledResult<bigint>) => (r.status === "fulfilled" ? r.value : undefined);
+  return { usdc, shares, allowance, earned: val(extra[0]), ratePerSecond: val(extra[1]), totalShares: val(extra[2]) };
 }
 
-export function USDCPosition({ wallet, account, network }: { wallet: Wallet; account: string; network: UsdcNetwork }) {
+export function USDCPosition({ wallet, account, network, onChanged }: { wallet: Wallet; account: string; network: UsdcNetwork; onChanged?: () => void }) {
   const [position, setPosition] = useState<Position>();
   const [input, setInput] = useState("");
   const [tab, setTab] = useState<Tab>("deposit");
@@ -119,13 +122,14 @@ export function USDCPosition({ wallet, account, network }: { wallet: Wallet; acc
         ? { ...read, allowance: approvedRef.current }
         : read;
       setPosition(latest);
-      if (amount === 0n || amount > (action === "redeem" ? latest.shares : latest.usdc)) {
+      if (action !== "claim" && (amount === 0n || amount > (action === "redeem" ? latest.shares : latest.usdc))) {
         throw new Error("Enter an amount within your available balance.");
       }
       if (action === "deposit" && amount > latest.allowance) {
         throw new Error("Approve the deposit amount before depositing.");
       }
-      const data = action === "approve"
+      const data = action === "claim" ? "0x4e71d92d"
+        : action === "approve"
         ? "0x095ea7b3" + encode(vault) + encode(amount)
         : (action === "deposit" ? "0xb6b55f25" : "0xdb006a75") + encode(amount);
       const tx = await wallet.request({
@@ -140,7 +144,13 @@ export function USDCPosition({ wallet, account, network }: { wallet: Wallet; acc
         const receipt = await wallet.request({ method: "eth_getTransactionReceipt", params: [tx] }) as { status: string } | null;
         if (!receipt) continue;
         if (receipt.status !== "0x1") throw new Error("The transaction reverted.");
-        const done = action === "approve" ? "Approved. You can deposit now." : action === "deposit" ? "Deposit confirmed." : "Withdrawal confirmed.";
+        const done = action === "approve" ? "Approved. You can deposit now." : action === "deposit" ? "Deposit confirmed. Your money is working and earning test rewards." : action === "claim" ? "Rewards claimed to your wallet." : "Withdrawal confirmed.";
+        if (action === "claim") {
+          setHash(tx);
+          for (let i = 0; i < 6; i++) { const p = await readPosition(wallet, network, account).catch(() => undefined); if (p) setPosition(p); if (p && (p.earned ?? 0n) < (latest.earned ?? 0n)) break; await new Promise((r) => setTimeout(r, 1500)); }
+          say("ok", done);
+          return;
+        }
         // Remember it, so the activity table shows it straight away (and checks it against the chain).
         addEntry({ hash: tx, chainId: network.id, account: account.toLowerCase(), kind: action === "redeem" ? "withdraw" : action, amount: amount.toString(), at: Date.now() });
         setEntries(loadEntries(network.id, account));
@@ -151,6 +161,7 @@ export function USDCPosition({ wallet, account, network }: { wallet: Wallet; acc
         // change; if they don't within the window, show what this transaction must have produced.
         const settled = await settledPosition({ kind: action, before: latest, amount, read: () => readPosition(wallet, network, account) });
         setPosition(settled.position);
+        onChanged?.();
         say("ok", settled.confirmed ? done : `${done} Your wallet's connection is a little behind, so these balances are what the transaction produces. Use Refresh in a moment to double-check.`);
         return;
       }

@@ -49,7 +49,7 @@ async function waitUntil(check: () => Promise<boolean>, timeoutMs: number) {
 
 const IDLE: Progress = { phase: "idle", usdc: false };
 
-export function MovePanel({ suggestedFrom, onChanged }: { suggestedFrom?: ChainId; onChanged: () => void }) {
+export function MovePanel({ suggestedFrom, onChanged, onArrived }: { suggestedFrom?: ChainId; onChanged: () => void; onArrived?: (to: ChainId) => void }) {
   const { address, chainId, isConnected, wallet, error: walletError } = useWallet();
   const { switchChain, isPending: switching } = useSwitchChain();
   const [asset, setAsset] = useState<Asset>("usdc");
@@ -198,6 +198,9 @@ export function MovePanel({ suggestedFrom, onChanged }: { suggestedFrom?: ChainI
       };
       saveMove(move);
       setMoves(loadMoves(address));
+      // The funds have left the wallet: clear the amount so the box does not keep "5" next to a balance of 0.
+      setText("");
+      setTick((t) => t + 1);
       step = "fill";
       setProgress((p) => ({ ...p, phase: "filling" }));
       let fill = null;
@@ -216,6 +219,7 @@ export function MovePanel({ suggestedFrom, onChanged }: { suggestedFrom?: ChainI
       setProgress((p) => ({ ...p, phase: "done", fillTx: fill.tx, chainSeconds: Math.max(0, fill.timestamp - depositTs), waitedSeconds: Math.round((Date.now() - confirmedAt) / 1000) }));
       setTick((t) => t + 1);
       onChanged();
+      onArrived?.(to);
     } catch (error) {
       console.error("[respool] move failed", error);
       const problem = explainWalletError(error, net.name);

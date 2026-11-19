@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { CHAIN_IDS, networkOf, readMap, readWatcher, readYou, type MapData, type WatcherStats, type YouView } from "@/lib/liquidity";
 import { recommend, type ChainId } from "@/lib/recommend";
+import { nextStep } from "@/lib/flow";
 import { fmt } from "@/lib/units";
 import { NetworkMap } from "./NetworkMap";
 import { NAMES } from "@/lib/format";
@@ -42,7 +43,13 @@ function Card({ chain, data, you, hasAccount }: { chain: ChainId; data?: MapData
   );
 }
 
-export function LiquidityMap({ account, refreshKey, onSuggest }: { account?: string; refreshKey: number; onSuggest: (from: ChainId) => void }) {
+export function LiquidityMap({ account, refreshKey, onSuggest, onVault, onRec }: {
+  account?: string; refreshKey: number; onSuggest: (from: ChainId) => void;
+  /** Open the vault on a chain (deposit, or withdraw before moving). */
+  onVault?: (chain: ChainId) => void;
+  /** Tells the page where liquidity is needed right now (or undefined when balanced). */
+  onRec?: (to: ChainId | undefined) => void;
+}) {
   const [data, setData] = useState<MapData>();
   const [you, setYou] = useState<Partial<Record<ChainId, YouView>>>({});
   const [watcher, setWatcher] = useState<WatcherStats>();
@@ -78,6 +85,9 @@ export function LiquidityMap({ account, refreshKey, onSuggest }: { account?: str
     ? { unichain: data.chains.unichain.activity, base: data.chains.base.activity } : undefined;
   const rec = activity && data?.settings ? recommend(activity, data.settings) : null;
   const bridge = data?.chains.unichain.bridge ?? data?.chains.base.bridge;
+  const recTo = rec?.to;
+  useEffect(() => { onRec?.(recTo); }, [recTo]); // eslint-disable-line react-hooks/exhaustive-deps
+  const step = nextStep({ hasAccount: !!account, rec: rec ? { from: rec.from, to: rec.to } : null, you });
   const updated = data ? new Date(data.at).toLocaleTimeString() : "";
 
   return (
@@ -91,6 +101,19 @@ export function LiquidityMap({ account, refreshKey, onSuggest }: { account?: str
       </div>
 
       {error && <div className="banner error" role="alert"><span>{error}</span></div>}
+
+      <div className={`banner nextstep${step.tone === "go" ? " reco hot" : step.tone === "ok" ? " ok" : ""}`} role="status" style={{ marginBottom: 12 }}>
+        <div>
+          <span className="sub">Your next step</span>
+          <b style={{ display: "block", fontSize: 16 }}>{step.title}</b>
+          <span className="hint">{step.text}</span>
+        </div>
+        {step.action && (
+          <button className="pbtn dark small" onClick={() => (step.action!.kind === "move" ? onSuggest(step.action!.chain) : onVault?.(step.action!.chain))}>
+            {step.action.label}
+          </button>
+        )}
+      </div>
 
       <div className={`banner reco${rec ? " hot" : ""}`} role="status" style={{ marginBottom: 12 }}>
         <div>

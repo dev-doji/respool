@@ -1,12 +1,15 @@
 "use client";
 // The test-USDC vault card. Purely presentational: it renders a position and reports what the visitor asked
 // for. All wallet and transaction logic stays in USDCPosition, so every state can be previewed without a wallet.
+import { useEffect, useRef, useState } from "react";
 import { amountProblem, format, parse } from "@/lib/usdc";
+import { fmt } from "@/lib/units";
 import type { UsdcNetwork } from "@/lib/usdcNetworks";
 
 export type Tab = "deposit" | "withdraw";
-export type Action = "approve" | "deposit" | "redeem";
-export type Position = { usdc: bigint; shares: bigint; allowance: bigint };
+export type Action = "approve" | "deposit" | "redeem" | "claim";
+/** `earned`, `ratePerSecond` and `totalShares` come from the reward stream; they are absent on a vault without rewards. */
+export type Position = { usdc: bigint; shares: bigint; allowance: bigint; earned?: bigint; ratePerSecond?: bigint; totalShares?: bigint };
 export type Notice = { tone: "info" | "ok" | "error"; text: string; detail?: string };
 
 interface Props {
@@ -26,7 +29,16 @@ interface Props {
   onRefresh(): void;
 }
 
+// Rounds, so 999.9999… tokens a day (integer division on the rate) reads as 1,000.
+const dayText = (v: bigint) => Math.round(Number(v) / 1e18).toLocaleString("en-US");
+
 export function VaultView({ network, vault, position, input, tab, busy, notice, hash, onInput, onTab, onAction, onRefresh }: Props) {
+  // The earned counter ticks up every second between reads, using the pool's reward rate and this depositor's share.
+  const readAt = useRef(Date.now());
+  const [, setTick] = useState(0);
+  useEffect(() => { readAt.current = Date.now(); }, [position]);
+  useEffect(() => { const id = setInterval(() => setTick((t) => t + 1), 1000); return () => clearInterval(id); }, []);
+
   if (!vault) {
     return (
       <div className="banner" role="status">
@@ -40,6 +52,13 @@ export function VaultView({ network, vault, position, input, tab, busy, notice, 
 
   const amount = parse(input);
   const deposit = tab === "deposit";
+  const total = position?.totalShares ?? 0n;
+  const seconds = BigInt(Math.max(0, Math.floor((Date.now() - readAt.current) / 1000)));
+  const liveEarned = position && position.earned !== undefined
+    ? position.earned + (position.ratePerSecond && total > 0n ? (position.ratePerSecond * seconds * position.shares) / total : 0n)
+    : undefined;
+  const perDay = position?.ratePerSecond !== undefined ? position.ratePerSecond * 86_400n : undefined;
+  const sharePct = position && total > 0n ? Number((position.shares * 10_000n) / total) / 100 : 0;
   const max = position ? (deposit ? position.usdc : position.shares) : undefined;
   const problem = amountProblem(input, max, deposit ? "wallet balance" : "redeemable balance");
   const needsApproval = deposit && !!position && amount > 0n && !problem && position.allowance < amount;
@@ -59,6 +78,21 @@ export function VaultView({ network, vault, position, input, tab, busy, notice, 
         <div className="tile-stat sky"><dt className="sub">Wallet balance</dt><dd className="num-big">{position ? format(position.usdc) : "–"}<small> USDC</small></dd></div>
         <div className="tile-stat mint"><dt className="sub">In the vault</dt><dd className="num-big">{position ? format(position.shares) : "–"}<small> USDC</small></dd></div>
       </dl>
+
+      {position && liveEarned !== undefined && (
+        <div className="earn-box">
+          <div>
+            <span className="sub">Test rewards earned</span>
+            <b className="earn-num">{fmt(liveEarned, 18, 4)} <small>tRSP</small></b>
+            <p className="hint">
+              {position.shares > 0n
+                ? `Your share of the pool is ${sharePct.toFixed(sharePct < 10 ? 1 : 0)}%${perDay !== undefined ? `. The vault pays ${dayText(perDay)} tRSP a day to everyone deposited` : ""}.`
+                : `Deposit to start earning your share${perDay !== undefined ? ` of ${dayText(perDay)} tRSP a day` : ""}.`}
+            </p>
+          </div>
+          <button type="button" className="pbtn small" disabled={busy || liveEarned === 0n} onClick={() => onAction("claim")}>Claim</button>
+        </div>
+      )}
 
       {position && (
         <p className="hint allow">
@@ -114,7 +148,7 @@ export function VaultView({ network, vault, position, input, tab, busy, notice, 
         )}
       </div>
 
-      <p className="cap dim">Vault <a className="mono" href={`${network.explorer}/address/${vault}`} target="_blank" rel="noopener noreferrer">{vault.slice(0, 6)}…{vault.slice(-4)} ↗</a>. Shares are 1:1 with deposits. Nothing here earns yield.</p>
+      <p className="cap dim">Vault <a className="mono" href={`${network.explorer}/address/${vault}`} target="_blank" rel="noopener noreferrer">{vault.slice(0, 6)}…{vault.slice(-4)} ↗</a>. Your deposit is 1:1 and always yours to withdraw. Rewards are a test token paid by the vault, not trading fees.</p>
     </div>
   );
 }

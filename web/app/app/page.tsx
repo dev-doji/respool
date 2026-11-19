@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import { AppNav } from "@/components/AppNav";
-import { WalletPanel } from "@/components/WalletPanel";
+import { HomeApp } from "@/components/HomeApp";
 import { WalletProviders } from "@/components/WalletProviders";
 
-export const metadata: Metadata = { title: "Respool app: test USDC vault" };
+export const metadata: Metadata = { title: "Respool app: follow the liquidity, earn on it" };
 
 export default function AppPage() {
   return (
@@ -14,11 +14,11 @@ export default function AppPage() {
         <main id="app-main" className="app-main">
           <div className="app-top">
             <div>
-              <p className="cap">testnet · base sepolia · play money only</p>
-              <h1>Your vault</h1>
+              <p className="cap">testnet · unichain sepolia and base sepolia · play money only</p>
+              <h1>Follow the liquidity</h1>
             </div>
           </div>
-          <WalletPanel />
+          <HomeApp />
         </main>
       </div>
     </WalletProviders>

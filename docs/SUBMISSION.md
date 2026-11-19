@@ -27,8 +27,8 @@ pool on **Unichain Sepolia** and on **Base Sepolia**.
 3. A second reactive contract, `RespoolBridgeWatcher`, watches the Across bridge on both chains and records how long
    each transfer takes from deposit to delivery.
 
-The app (Next.js) shows a live map of both chains, lets you move ETH or USDC between Unichain and Base through the Across
-bridge, and has a test-USDC vault.
+The app (Next.js) is one page: a live map of both chains, a "next step" card that reads your balances, a Move panel (ETH or USDC
+between Unichain and Base through the Across bridge) and a vault where a deposit stays 1:1 redeemable and earns test rewards.
 
 ### Measured latency (live testnet, block clock, not simulated)
 
@@ -49,7 +49,8 @@ Four live batches were run; in every one, every swap completed its re-centre loo
 - Live liquidity map drawn as a network (pools, Reactive, bridge) with a labelled simulation of a move, light and dark themes.
 - Move ETH or USDC between Unichain Sepolia and Base Sepolia through Across, tracked to delivery.
 - Reactive bridge watcher that records Across deposits and fills.
-- 65 Foundry tests (policy, vault on a real v4 PoolManager, brain, simulated loop, USDC vault, bridge watcher) and 15 web tests.
+- One-page flow: see where liquidity is, get a "next step" from your own balances, move USDC to the busy chain, deposit it and watch test rewards accrue (1:1 redeemable, test token, not trading fees).
+- 83 Foundry tests (policy, vault on a real v4 PoolManager, brain, simulated loop, USDC vault, earn vault, bridge watcher) and 19 web tests.
 
 ### Tech stack
 
@@ -58,6 +59,8 @@ TypeScript, wagmi, viem, RainbowKit.
 
 ### Deployed (testnet)
 
+- Earn vault, Base Sepolia: `0x687b691530d91C87061837AB2eb28156E51E0958` (reward token `0x22bD4B2D0fD6fe9b33c8822549872C547cc8568D`)
+- Earn vault, Unichain Sepolia: `0x7C5c0A6615902C0a23eC53Ed1E7DF0fbbEB66203` (reward token `0x687b691530d91C87061837AB2eb28156E51E0958`)
 - Brain, Lasna: `0x1BF343a05d09f578D5c248C2B05A47019a434f56`
 - Bridge watcher, Lasna: `0x0A251D994D2DaE46Ef809eA83F30053BB7F6e8B0`
 - Vault, Base Sepolia: `0x3cC9a15b8Fb99910746a94fc35092835B48fff3C`
@@ -69,6 +72,7 @@ TypeScript, wagmi, viem, RainbowKit.
 - After a full crossing a vault holds one token and parks the rest in a one-sided limit position.
 - Moving your own funds through the app uses Across (a third-party bridge); Reactive watches and records it, it does not
   move the funds. A real browser-wallet Move and a USDC transfer through Across have not been tested end to end.
+- Earnings are **test rewards**: a worthless test token the deployer pays out (about 1,000 a day per chain, shared by depositors). They are not trading fees, and the Uniswap vault's fees are not paid to depositors. Deposits are 1:1 redeemable and never depend on the reward token.
 - Test tokens and testnet chains only.
 
 ### Links
@@ -88,6 +92,6 @@ Record the browser at 1080p with any screen recorder (Windows: Win+Alt+R, or OBS
 | 0:15 | Landing, "How it works" and "The loop" | "Reactive watches swaps on Unichain and Base, re-centres the position, and moves liquidity to whichever chain is busier. No keeper server." |
 | 0:35 | Replay a real loop on the landing page | "This is a real recorded loop on testnet: swap, Reactive reaction, callback, re-centre." |
 | 0:55 | Latency section | "Four live batches. Re-centre median 1.6 seconds on Base and 2.0 on Unichain, cross-chain move 3.4 seconds. All on testnet, measured on the block clock." |
-| 1:15 | `/app/map`, network map, press Simulate | "The network map shows both pools, Reactive in the middle and the Across bridge underneath. This replay is a labelled simulation: swaps hit Base, Reactive counts them, calls the quiet chain to depart, the liquidity crosses Across, then arrives. Reactive also watches the bridge and records how long transfers take: 4 seconds in my test." |
+| 1:15 | `/app`, network map, press Simulate | "The network map shows both pools, Reactive in the middle and the Across bridge underneath. This replay is a labelled simulation: swaps hit Base, Reactive counts them, calls the quiet chain to depart, the liquidity crosses Across, then arrives. Reactive also watches the bridge and records how long transfers take: 4 seconds in my test." |
 | 1:35 | Connect wallet, Move panel with a quote | "You can move ETH or USDC between the two chains; the quote, fee and delivery time come from Across." |
 | 1:50 | Toggle light/dark, then the repo | "Foundry tests, deployed addresses, and raw latency records are in the repo. Everything is testnet." |

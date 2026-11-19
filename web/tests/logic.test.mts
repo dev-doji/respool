@@ -102,3 +102,29 @@ test("waiting time reads in plain words and flips to slow after 10 minutes", asy
   assert.equal(moveWaitState(9 * 60_000), "waiting");
   assert.equal(moveWaitState(25 * 60_000), "slow");
 });
+
+test("the guided flow points money from the dry chain to where liquidity is, then to the vault", async () => {
+  const { nextStep } = await import("../lib/flow.ts");
+  const rec = { from: "unichain" as const, to: "base" as const };
+  const none = { usdc: 0n, shares: 0n };
+  assert.equal(nextStep({ hasAccount: false, rec, you: {} }).tone, "info");
+  assert.match(nextStep({ hasAccount: true, rec, you: {} }).title, /Reading/);
+  // USDC sitting on the dry chain: move it.
+  let s = nextStep({ hasAccount: true, rec, you: { unichain: { usdc: 5_000_000n, shares: 0n }, base: none } });
+  assert.deepEqual(s.action, { kind: "move", chain: "unichain", label: "Move to Base Sepolia" });
+  // Deposited on the dry chain: withdraw first.
+  s = nextStep({ hasAccount: true, rec, you: { unichain: { usdc: 0n, shares: 5_000_000n }, base: none } });
+  assert.equal(s.action?.kind, "withdraw");
+  assert.equal(s.action?.chain, "unichain");
+  // Arrived on the liquid chain: deposit.
+  s = nextStep({ hasAccount: true, rec, you: { unichain: none, base: { usdc: 4_990_000n, shares: 0n } } });
+  assert.deepEqual(s.action, { kind: "deposit", chain: "base", label: "Deposit on Base Sepolia" });
+  // Deposited on the liquid chain: working.
+  s = nextStep({ hasAccount: true, rec, you: { unichain: none, base: { usdc: 0n, shares: 4_990_000n } } });
+  assert.equal(s.tone, "ok");
+  assert.match(s.title, /working on Base Sepolia/);
+  // Nothing anywhere: faucet. Balanced liquidity: deposit where the USDC is.
+  assert.match(nextStep({ hasAccount: true, rec, you: { unichain: none, base: none } }).title, /no test USDC/);
+  s = nextStep({ hasAccount: true, rec: null, you: { unichain: none, base: { usdc: 1_000_000n, shares: 0n } } });
+  assert.equal(s.action?.chain, "base");
+});

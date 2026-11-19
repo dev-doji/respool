@@ -470,3 +470,19 @@ dl.quote dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; 
 .funds-list li.has .tick { background: var(--accent); color: #0e0e1a; }
 .funds-list .mono { color: var(--muted); margin-left: auto; }
 .pending-note { margin: 6px 0 0; max-width: 46ch; }
+
+/* ---------- earnings ---------- */
+.earn-box { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 14px; border: 1px solid var(--accent); background: var(--accent-soft); margin: 0 0 12px; }
+.earn-box .hint { margin: 4px 0 0; }
+.earn-num { display: block; font-family: var(--g); font-weight: 600; font-size: 28px; letter-spacing: -.04em; font-variant-numeric: tabular-nums; }
+.earn-num small { font: 600 12px var(--m); color: var(--muted); letter-spacing: 0; }
+
+/* ---------- one-page flow ---------- */
+.flow-strip { list-style: none; margin: 0 0 14px; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.flow-strip li { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border: 1px solid var(--line); background: var(--card); font-size: 13.5px; }
+.flow-strip b { display: grid; place-items: center; width: 22px; height: 22px; flex: none; font: 600 12px var(--m); background: var(--ink); color: var(--on-ink); }
+.flow-anchor { scroll-margin-top: 84px; margin-top: 18px; }
+.nextstep { align-items: center; justify-content: space-between; gap: 12px; }
+.nextstep > div { flex: 1 1 auto; }
+@media (max-width: 720px) { .flow-strip { grid-template-columns: 1fr; } .nextstep { flex-direction: column; align-items: stretch; } }
+.app-grid.embedded { grid-template-columns: 1fr; }

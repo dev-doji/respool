@@ -1,13 +1,13 @@
 "use client";
-// "Where to put your money": one bar per supported testnet, longest where each deposited dollar would have earned
-// the most test fees in the last half hour, with a two-sentence suggestion. Read-only: it never moves money.
+// The first thing on the page: a short list of chains, best first, each with one number (what $100 would earn in a
+// day, going by recent trading) and a Deposit button where this app has a vault. Read-only: it never moves money.
 import { useCallback, useEffect, useRef, useState } from "react";
 import { BOARD_CHAINS, explainFallback, rank, readChain, type ChainStats } from "@/lib/chainBoard";
 
 type Say = { text: string; by: "gemini" | "rules"; note?: string };
 const windowText = (s: number) => (s >= 5400 ? `${(s / 3600).toFixed(1)} h` : `${Math.max(1, Math.round(s / 60))} min`);
 
-export function ChainBoard() {
+export function ChainBoard({ onPick }: { onPick: (chain: "base" | "unichain") => void }) {
   const [stats, setStats] = useState<ChainStats[]>([]);
   const [say, setSay] = useState<Say>();
   const [at, setAt] = useState<Date>();
@@ -17,7 +17,7 @@ export function ChainBoard() {
     if (running.current) return;
     running.current = true;
     try {
-      // Each chain is read on its own, so one slow public node leaves one row empty, not the whole board.
+      // Each chain is read on its own, so one slow public node leaves one row empty, not the whole list.
       const done: ChainStats[] = [];
       await Promise.all(BOARD_CHAINS.map(async (c) => {
         done.push(await readChain(c));
@@ -50,45 +50,48 @@ export function ChainBoard() {
   const reading = stats.length < BOARD_CHAINS.length;
 
   return (
-    <section className="panel board" aria-labelledby="board-title">
-      <div className="panel-head">
-        <h2 id="board-title">Where to put your money</h2>
-        <span className="tag"><span className={`live-dot${reading ? " off" : ""}`} />{reading ? "reading…" : at ? `updated ${at.toLocaleTimeString()}` : ""}</span>
+    <section className="board" aria-labelledby="board-title">
+      <div className="board-head">
+        <h2 id="board-title">Chains</h2>
+        <span className="cap dim">{reading ? "reading…" : at ? `updated ${at.toLocaleTimeString()}` : ""}</span>
       </div>
-      <p className="app-note">Each bar is the test fees $100 would have earned in a day on that chain, going by recent Uniswap trading there (the last half hour, or up to six hours on a quiet chain). Longer is better. It is testnet trading, mostly bots, so it shows where test activity is, not real earnings.</p>
 
-      <ul className="bars">
-        {ranked.map((r, i) => {
-          const pct = r.per100PerDay && top > 0 ? Math.max(4, Math.round(Math.sqrt(r.per100PerDay / top) * 100)) : 0;
+      <ul className="chain-list">
+        {ranked.map((r) => {
+          const pct = r.per100PerDay && top > 0 ? Math.max(3, Math.round(Math.sqrt(r.per100PerDay / top) * 100)) : 0;
+          const detail = r.status === "ok" ? `${r.swapsPerHour.toFixed(0)} swaps an hour · ${r.pools} pool${r.pools === 1 ? "" : "s"} · read over ${windowText(r.windowSec)}`
+            : r.status === "quiet" ? `Too little trading to rank (${r.swaps} swap${r.swaps === 1 ? "" : "s"} in ${windowText(r.windowSec)})`
+            : `Could not be read: ${r.error ?? "unavailable"}`;
           return (
-            <li key={r.chain.key}>
-              <div className="bar-top">
-                <b>{r.chain.name}{i === 0 && r.status === "ok" && <span className="best">{r.chain.vault ? "best now" : "highest"}</span>}{r.chain.key === usable && !(i === 0) && <span className="best">best to use here</span>}</b>
-                <span className="cap dim">{r.chain.vault ? "deposit here" : "compare only"}</span>
+            <li key={r.chain.key} className="chain-row">
+              <div className="cr-name">
+                <b>{r.chain.name}{r.chain.key === usable && <span className="dot" title="Best chain you can deposit to here" aria-label="Best chain you can deposit to here" />}</b>
+                <span className="cap dim">{detail}</span>
               </div>
-              <div className="bar" role="img" aria-label={r.status === "ok" ? `${r.chain.name}: about ${r.per100PerDay!.toFixed(2)} test fees per 100 dollars a day` : `${r.chain.name}: ${r.status === "quiet" ? "too little trading to rank" : "could not be read"}`}>
-                <i style={{ width: `${pct}%` }} />
-              </div>
-              <div className="bar-note cap">
-                {r.status === "ok" ? `${r.per100PerDay!.toFixed(2)} per $100 a day · ${r.swapsPerHour.toFixed(0)} swaps an hour in its busiest pool · ${r.pools} active pool${r.pools === 1 ? "" : "s"} · read over ${windowText(r.windowSec)}`
-                  : r.status === "quiet" ? `Too little trading to rank (${r.swaps} swap${r.swaps === 1 ? "" : "s"} in ${windowText(r.windowSec)})`
-                  : `Could not be read: ${r.error ?? "unavailable"}. It retries on the next refresh.`}
+              <div className="cr-bar" role="img" aria-label={r.status === "ok" ? `${r.chain.name}: about ${r.per100PerDay!.toFixed(2)} test fees per 100 dollars a day` : `${r.chain.name}: no ranking`}><i style={{ width: `${pct}%` }} /></div>
+              <div className="cr-num">{r.status === "ok" ? <><b>{r.per100PerDay!.toFixed(2)}</b><small>per $100 a day</small></> : <small>–</small>}</div>
+              <div className="cr-act">
+                {r.chain.vault
+                  ? <button type="button" className="pbtn small" onClick={() => onPick(r.chain.key as "base" | "unichain")}>Deposit</button>
+                  : <span className="cap dim">Not yet</span>}
               </div>
             </li>
           );
         })}
-        {reading && <li className="cap dim" role="status">Reading the chains…</li>}
+        {reading && stats.length === 0 && <li className="cap dim" role="status">Reading the chains…</li>}
       </ul>
 
       {say && (
-        <div className="banner reco" role="status">
-          <div>
-            <span className="sub">{say.by === "gemini" ? "Suggestion, written by Gemini from these numbers" : "Suggestion, from a fixed rule"}</span>
-            <span style={{ display: "block" }}>{say.text}</span>
-            {say.note && <span className="hint">{say.note} This sentence comes from a fixed rule.</span>}
-          </div>
-        </div>
+        <p className="board-say" role="status">
+          {say.text}{" "}
+          <span className="cap dim">{say.by === "gemini" ? "Written by Gemini from these numbers." : "From a fixed rule."}{say.note ? ` ${say.note}` : ""}</span>
+        </p>
       )}
+
+      <details className="board-how">
+        <summary>How is this worked out?</summary>
+        <p>The number is the test fees $100 would have earned in a day in a chain&apos;s busiest fee-charging Uniswap pool, going by its recent trading (the last half hour, or up to about six hours on a quiet chain). It is testnet trading, mostly bots, so it shows where test activity is, not real earnings. The dot marks the best chain this app can deposit to.</p>
+      </details>
     </section>
   );
 }

@@ -75,7 +75,7 @@ export function WalletPanel({ embedded = false, preferChainId, onChanged, activi
 
       <section className="panel" aria-labelledby="usdc-title">
         <div className="panel-head">
-          <h2 id="usdc-title">{embedded ? "Deposit and earn" : "Test USDC vault"}</h2>
+          <h2 id="usdc-title" className={embedded ? "sr-only" : undefined}>{embedded ? "Deposit and earn" : "Test USDC vault"}</h2>
           {!embedded && <span className="tag"><span className={`live-dot${active.vault ? "" : " off"}`} />{active.vault ? active.name : "Not deployed"}</span>}
         </div>
         {isConnected && address ? <FundsAcrossChains account={address} activeId={active.id} switching={switching} onSwitch={choose} /> : (

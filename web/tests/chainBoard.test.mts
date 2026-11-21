@@ -76,7 +76,6 @@ test("the explanation names the best chain, says when the app cannot use it, and
   const text = explainFallback(rank([arb, summarise(BASE, [], 1800)]));
   assert.match(text, /Arbitrum Sepolia looks best/);
   assert.match(text, /cannot deposit or move there yet/);
-  assert.match(text, /Base Sepolia had too little trading/);
   assert.match(text, /not real earnings/);
 });
 
@@ -105,4 +104,14 @@ test("when the top chain cannot be used here, the explanation names the best one
   const arb = summarise(BOARD_CHAINS.find((c) => c.key === "arbitrum")!, thin, 1800);
   const text = explainFallback(rank([arb, summarise(BASE, deep, 1800)]));
   assert.match(text, /The best you can use here is Base Sepolia/);
+});
+
+test("a dust pool, where swaps are bigger than the whole pool, is never the one compared", () => {
+  const swaps = [
+    ...Array.from({ length: 9 }, () => decodeSwap(log(POOL_B, 1_000_000n, 10n, 3000))),
+    ...Array.from({ length: 4 }, () => decodeSwap(log(POOL_A, 1000n, 100_000n, 3000))),
+  ];
+  const s = summarise(BASE, swaps, 1800);
+  assert.equal(s.poolId, POOL_A);
+  assert.ok(s.per100PerDay! < 1);
 });

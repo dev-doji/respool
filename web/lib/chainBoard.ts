@@ -79,11 +79,25 @@ export function swapYield(s: Swap): number {
   return ((s.fee / 1e6) * Number(abs)) / (2 * L * sqrtP);
 }
 
+/** A swap's volume as a share of the pool's whole value. Above 1 the pool was effectively empty (dust), so its yield means nothing. */
+export function volumeShare(s: Swap): number {
+  const L = Number(s.liquidity);
+  const sqrtP = Number(s.sqrtPriceX96) / 2 ** 96;
+  if (!(L > 0) || !(sqrtP > 0)) return Infinity;
+  const abs = s.amount1 < 0n ? -s.amount1 : s.amount1;
+  return Number(abs) / (2 * L * sqrtP);
+}
+
 export function summarise(chain: BoardChain, swaps: Swap[], windowSec: number): ChainStats {
   const base: ChainStats = { chain, status: "quiet", swaps: swaps.length, windowSec, swapsPerHour: windowSec > 0 ? (swaps.length * 3600) / windowSec : 0, pools: 0 };
   const byPool = new Map<string, Swap[]>();
-  for (const s of swaps) byPool.set(s.pool, [...(byPool.get(s.pool) ?? []), s]);
-  base.pools = byPool.size;
+  const allPools = new Set<string>();
+  for (const s of swaps) {
+    allPools.add(s.pool);
+    // Swaps bigger than the whole pool come from dust pools and would give absurd figures, so they are left out.
+    if (volumeShare(s) <= 1) byPool.set(s.pool, [...(byPool.get(s.pool) ?? []), s]);
+  }
+  base.pools = allPools.size;
   let best: Swap[] = [];
   // A pool whose fee is zero pays depositors nothing, however busy it is, so it is never the one compared.
   for (const list of byPool.values()) if (list[list.length - 1].fee > 0 && list.length > best.length) best = list;
@@ -105,10 +119,10 @@ export function explainFallback(ranked: ChainStats[]): string {
   const top = ranked[0];
   if (!top || top.status !== "ok") return "No chain has enough recent testnet trading to compare right now. Check again in a few minutes.";
   const usable = ranked.find((r) => r.chain.vault && r.status === "ok");
-  const where = top.chain.vault ? "You can deposit there in this app."
-    : `This app cannot deposit or move there yet, so it is shown for comparison only.${usable ? ` The best you can use here is ${usable.chain.name}.` : ""}`;
-  const quiet = ranked.filter((r) => r.status !== "ok").map((r) => r.chain.name);
-  return `${top.chain.name} looks best right now: about ${top.swapsPerHour.toFixed(0)} swaps an hour in its busiest pool, which is thinly backed, so each deposited dollar would have earned the most test fees. ${where}${quiet.length ? ` ${quiet.join(" and ")} had too little trading to rank.` : ""} Testnet trading is mostly bots, so this shows where test activity is, not real earnings.`;
+  const lead = `${top.chain.name} looks best right now: its busiest pool is thinly backed, so each deposited dollar would have earned the most test fees.`;
+  const where = top.chain.vault ? "You can deposit there."
+    : `This app cannot deposit or move there yet.${usable ? ` The best you can use here is ${usable.chain.name}.` : ""}`;
+  return `${lead} ${where} Testnet activity, not real earnings.`;
 }
 
 async function logsIn(chain: BoardChain, from: number, to: number) {

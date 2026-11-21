@@ -25,14 +25,16 @@ export function HomeApp() {
 
   return (
     <div className="simple-app">
-      <ChainBoard />
-      <div className="two-col">
+      <ChainBoard onPick={openVault} />
+      <div className={`two-col${address ? "" : " solo"}`}>
       <div className="col-actions">
-        <NextStepBar
-          account={address} refreshKey={refreshKey}
-          onMove={(from) => { setSuggested(from); setTab("move"); }}
-          onVault={openVault}
-        />
+        {address && (
+          <NextStepBar
+            account={address} refreshKey={refreshKey}
+            onMove={(from) => { setSuggested(from); setTab("move"); }}
+            onVault={openVault}
+          />
+        )}
 
         <div className="seg tabs" role="tablist" aria-label="What do you want to do?">
           <button type="button" role="tab" id="tab-earn" aria-selected={tab === "earn"} aria-controls="pane-earn" onClick={() => setTab("earn")}>Deposit and earn</button>
@@ -48,9 +50,8 @@ export function HomeApp() {
         </div>
       </div>
 
-      <aside className="col-activity" aria-label="Activity">
+      <aside className="col-activity" aria-label="Activity" hidden={!address}>
         <h2 className="col-title">Activity</h2>
-        {!address && <p className="hint">Connect a wallet and your moves, deposits and withdrawals will be listed here.</p>}
         <div ref={setActivity} className="activity-slot" />
       </aside>
       </div>

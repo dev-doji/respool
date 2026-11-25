@@ -79,7 +79,8 @@ export function swapYield(s: Swap): number {
   return ((s.fee / 1e6) * Number(abs)) / (2 * L * sqrtP);
 }
 
-/** A swap's volume as a share of the pool's whole value. Above 1 the pool was effectively empty (dust), so its yield means nothing. */
+/** A swap's volume as a share of the pool's whole value. A swap above MAX_SWAP_SHARE means the pool is effectively empty (dust), so its yield means nothing. */
+const MAX_SWAP_SHARE = 0.1;
 export function volumeShare(s: Swap): number {
   const L = Number(s.liquidity);
   const sqrtP = Number(s.sqrtPriceX96) / 2 ** 96;
@@ -95,7 +96,7 @@ export function summarise(chain: BoardChain, swaps: Swap[], windowSec: number): 
   for (const s of swaps) {
     allPools.add(s.pool);
     // Swaps bigger than the whole pool come from dust pools and would give absurd figures, so they are left out.
-    if (volumeShare(s) <= 1) byPool.set(s.pool, [...(byPool.get(s.pool) ?? []), s]);
+    if (volumeShare(s) <= MAX_SWAP_SHARE) byPool.set(s.pool, [...(byPool.get(s.pool) ?? []), s]);
   }
   base.pools = allPools.size;
   let best: Swap[] = [];

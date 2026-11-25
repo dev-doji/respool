@@ -19,13 +19,13 @@
 }
 /* Dark theme. Ink (borders, buttons, headings) turns light; --deep keeps the dark panels dark. */
 :root[data-theme="dark"] {
-  --bg: #0e0e1a; --bg-2: #171727; --card: #171727; --line: #2a2a40; --line-2: #36364f;
-  --ink: #ecebf5; --text: #ecebf5; --muted: #a2a3b8; --faint: #8f90a8;
+  --bg: #101119; --bg-2: #1a1b28; --card: #161722; --line: #262839; --line-2: #31334a;
+  --ink: #b3b4c8; --text: #c6c7d6; --muted: #8f90a6; --faint: #7f8097;
   --accent: #2ed3a2; --accent-deep: #4fe0b6; --accent-soft: #11332b; --sky: #1b2433; --paper: #14141f;
   --ok: #5fd68a; --ok-soft: #10281a; --bad: #ff7a6e; --bad-soft: #351715; --real: #6c9bff; --lav: #a08cff;
-  --deep: #1d1d33; --on-ink: #0e0e1a; --ink-hover: #ffffff; --nav-bg: rgba(23,23,39,.86); --bg-clear: rgba(14,14,26,0);
+  --deep: #1d1d33; --on-ink: #101119; --ink-hover: #cdcee0; --nav-bg: rgba(22,23,34,.86); --bg-clear: rgba(16,17,25,0);
   --accent-line: #1f5a49; --bad-text: #ffb3ab; --bad-line: #6b2b27; --ok-line: #1f5a36; --ok-text: #a8ecc0;
-  --glow: rgba(46,211,162,.10); --land: #2b2b45; --sea: #12121f;
+  --glow: rgba(46,211,162,.06); --land: #2b2b45; --sea: #12121f;
   color-scheme: dark;
 }
 * { box-sizing: border-box; }
@@ -585,3 +585,12 @@ body:has(.calm) { background: var(--bg); }
 .two-col.solo { grid-template-columns: minmax(0, 640px); }
 .col-activity[hidden] { display: none; }
 .calm .app-grid.embedded .panel-head:has(.sr-only:only-child) { display: none; }
+
+/* Dark mode on the app page: no bright white. Primary actions are a muted green, selected tabs a soft raised grey. */
+:root[data-theme="dark"] .calm .pbtn.dark { background: #1f5a49; border-color: #1f5a49; color: #d6f5ea; }
+:root[data-theme="dark"] .calm .pbtn.dark:hover { background: #256b57; border-color: #256b57; }
+:root[data-theme="dark"] .calm .seg button[aria-pressed="true"], :root[data-theme="dark"] .calm .seg button[aria-selected="true"] { background: #262839; color: var(--text); border-color: var(--line-2); }
+:root[data-theme="dark"] .calm .cp[aria-pressed="true"] { border-color: var(--line-2); box-shadow: 0 0 0 1px var(--line-2); background: var(--bg-2); }
+:root[data-theme="dark"] .calm .cr-bar i { background: #6f7196; }
+:root[data-theme="dark"] .calm .pnav { border-bottom-color: var(--line); }
+:root[data-theme="dark"] .calm h1, :root[data-theme="dark"] .calm h2, :root[data-theme="dark"] .calm .cr-num b, :root[data-theme="dark"] .calm .stat-row dd { color: #d3d4e2; }

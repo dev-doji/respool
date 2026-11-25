@@ -99,7 +99,7 @@ test("if every busy pool is fee-free the chain is 'quiet', not a zero bar", () =
 });
 
 test("when the top chain cannot be used here, the explanation names the best one that can", () => {
-  const thin = Array.from({ length: 4 }, () => decodeSwap(log(POOL_A, 1000n, 1_000n)));
+  const thin = Array.from({ length: 4 }, () => decodeSwap(log(POOL_A, 1000n, 10_000n)));
   const deep = Array.from({ length: 4 }, () => decodeSwap(log(POOL_A, 1000n, 1_000_000n)));
   const arb = summarise(BOARD_CHAINS.find((c) => c.key === "arbitrum")!, thin, 1800);
   const text = explainFallback(rank([arb, summarise(BASE, deep, 1800)]));

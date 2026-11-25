@@ -38,6 +38,16 @@ export const NETWORKS: UsdcNetwork[] = [
     logWindow: 900,
     ethFaucet: "https://www.alchemy.com/faucets/unichain-sepolia",
   },
+  {
+    id: 11155111,
+    name: "Ethereum Sepolia",
+    usdc: "0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238",
+    vault: address(process.env.NEXT_PUBLIC_ETHEREUM_SEPOLIA_USDC_VAULT),
+    explorer: "https://sepolia.etherscan.io",
+    rpc: "https://ethereum-sepolia-rpc.publicnode.com",
+    logWindow: 9000,
+    ethFaucet: "https://cloud.google.com/application/web3/faucet/ethereum/sepolia",
+  },
 ];
 
 export const networkById = (id: number | undefined): UsdcNetwork | undefined => NETWORKS.find((n) => n.id === id);

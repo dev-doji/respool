@@ -7,7 +7,7 @@ import { BOARD_CHAINS, explainFallback, rank, readChain, type ChainStats } from 
 type Say = { text: string; by: "gemini" | "rules"; note?: string };
 const windowText = (s: number) => (s >= 5400 ? `${(s / 3600).toFixed(1)} h` : `${Math.max(1, Math.round(s / 60))} min`);
 
-export function ChainBoard({ onPick }: { onPick: (chain: "base" | "unichain") => void }) {
+export function ChainBoard({ onPick }: { onPick: (chainId: number) => void }) {
   const [stats, setStats] = useState<ChainStats[]>([]);
   const [say, setSay] = useState<Say>();
   const [at, setAt] = useState<Date>();
@@ -72,7 +72,7 @@ export function ChainBoard({ onPick }: { onPick: (chain: "base" | "unichain") =>
               <div className="cr-num">{r.status === "ok" ? <><b>{r.per100PerDay!.toFixed(2)}</b><small>per $100 a day</small></> : <small>–</small>}</div>
               <div className="cr-act">
                 {r.chain.vault
-                  ? <button type="button" className="pbtn small" onClick={() => onPick(r.chain.key as "base" | "unichain")}>Deposit</button>
+                  ? <button type="button" className="pbtn small" onClick={() => onPick(r.chain.id)}>Deposit</button>
                   : <span className="cap dim">Not yet</span>}
               </div>
             </li>

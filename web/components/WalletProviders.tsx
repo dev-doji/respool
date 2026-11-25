@@ -7,12 +7,12 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useEffect, useState, type ReactNode } from "react";
 import { currentTheme, type Theme } from "./ThemeToggle";
 import { createConfig, http, WagmiProvider } from "wagmi";
-import { baseSepolia, unichainSepolia } from "wagmi/chains";
+import { baseSepolia, sepolia, unichainSepolia } from "wagmi/chains";
 
 const projectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID?.trim();
 const config = createConfig({
-  chains: [baseSepolia, unichainSepolia],
-  transports: { [baseSepolia.id]: http(), [unichainSepolia.id]: http() },
+  chains: [baseSepolia, unichainSepolia, sepolia],
+  transports: { [baseSepolia.id]: http(), [unichainSepolia.id]: http(), [sepolia.id]: http() },
   connectors: connectorsForWallets([{
     groupName: "Wallets",
     wallets: projectId ? [rainbowWallet, walletConnectWallet, injectedWallet] : [injectedWallet],

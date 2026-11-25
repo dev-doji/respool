@@ -6,21 +6,25 @@ import {ERC20} from "../lib/v4-core/lib/solmate/src/tokens/ERC20.sol";
 import {RespoolEarnVault} from "../src/RespoolEarnVault.sol";
 import {RespoolRewardToken} from "../src/RespoolRewardToken.sol";
 
-/// @notice Deploys the earning vault and its test reward token on Base Sepolia or Unichain Sepolia, then funds the
+/// @notice Deploys the earning vault and its test reward token on Base, Unichain or Ethereum Sepolia, then funds the
 ///         reward stream. Rewards are a test token minted by the deployer, not trading fees.
 /// forge script script/DeployEarnVault.s.sol --rpc-url base_sepolia --broadcast
 /// forge script script/DeployEarnVault.s.sol --rpc-url unichain_sepolia --broadcast
+/// forge script script/DeployEarnVault.s.sol --rpc-url https://ethereum-sepolia-rpc.publicnode.com --broadcast
 /// Optional env: REWARD_TOTAL (whole tokens, default 30000), REWARD_DAYS (default 30).
 contract DeployEarnVault is Script {
     // Circle's test USDC (checked on chain).
     address internal constant BASE_SEPOLIA_USDC = 0x036CbD53842c5426634e7929541eC2318f3dCF7e;
     address internal constant UNICHAIN_SEPOLIA_USDC = 0x31d0220469e10c4E71834a79b1f276d740d3768F;
+    // Circle's test USDC on Ethereum Sepolia (symbol USDC, 6 decimals, checked on chain; same address as in Circle's CCTP examples).
+    address internal constant ETHEREUM_SEPOLIA_USDC = 0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238;
 
     function run() external returns (RespoolEarnVault vault, RespoolRewardToken reward) {
         address usdc;
         if (block.chainid == 84532) usdc = BASE_SEPOLIA_USDC;
         else if (block.chainid == 1301) usdc = UNICHAIN_SEPOLIA_USDC;
-        else revert("run on Base Sepolia (84532) or Unichain Sepolia (1301)");
+        else if (block.chainid == 11155111) usdc = ETHEREUM_SEPOLIA_USDC;
+        else revert("run on Base Sepolia (84532), Unichain Sepolia (1301) or Ethereum Sepolia (11155111)");
 
         uint256 total = vm.envOr("REWARD_TOTAL", uint256(30_000)) * 1e18;
         uint256 duration = vm.envOr("REWARD_DAYS", uint256(30)) * 1 days;

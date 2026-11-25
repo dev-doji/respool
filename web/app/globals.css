@@ -511,7 +511,7 @@ dl.quote dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; 
 @media (prefers-reduced-motion: reduce) { .bar i { transition: none; } }
 
 /* Deposit card: chain cards, one stat row, one wide button */
-.chain-pick { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.chain-pick { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
 .cp { text-align: left; display: grid; gap: 6px; padding: 14px 16px; border: 1px solid var(--line); background: var(--card); cursor: pointer; font: inherit; color: inherit; min-height: 44px; }
 .cp[aria-pressed="true"] { border: 2px solid var(--ink); padding: 13px 15px; background: var(--bg-2); }
 .cp:not([aria-pressed="true"]):hover { border-color: var(--ink); }

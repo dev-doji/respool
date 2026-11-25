@@ -25,7 +25,7 @@ export function HomeApp() {
 
   return (
     <div className="simple-app">
-      <ChainBoard onPick={openVault} />
+      <ChainBoard onPick={(id) => { setVaultChain(id); setTab("earn"); }} />
       <div className={`two-col${address ? "" : " solo"}`}>
       <div className="col-actions">
         {address && (

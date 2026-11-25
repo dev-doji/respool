@@ -20,7 +20,7 @@ export const BOARD_CHAINS: BoardChain[] = [
   { key: "base", name: "Base Sepolia", id: 84532, rpc: "https://sepolia.base.org", poolManager: "0x05E73354cFDd6745C338b50BcFDfA3Aa6fA03408", maxRange: 200, blockSec: 0.2, vault: true, move: true },
   { key: "unichain", name: "Unichain Sepolia", id: 1301, rpc: "https://sepolia.unichain.org", poolManager: "0x00b036b58a818b1bc34d502d3fe730db729e62ac", maxRange: 1000, blockSec: 1, vault: true, move: true },
   { key: "arbitrum", name: "Arbitrum Sepolia", id: 421614, rpc: "https://sepolia-rollup.arbitrum.io/rpc", poolManager: "0xFB3e0C6F74eB1a21CC1Da29aeC80D2Dfe6C9a317", maxRange: 10000, blockSec: 0.25, vault: false, move: false },
-  { key: "sepolia", name: "Ethereum Sepolia", id: 11155111, rpc: "https://ethereum-sepolia-rpc.publicnode.com", poolManager: "0xE03A1074c86CFeDd5C142C4F04F1a1536e203543", maxRange: 10000, blockSec: 12, vault: false, move: false },
+  { key: "sepolia", name: "Ethereum Sepolia", id: 11155111, rpc: "https://ethereum-sepolia-rpc.publicnode.com", poolManager: "0xE03A1074c86CFeDd5C142C4F04F1a1536e203543", maxRange: 10000, blockSec: 12, vault: true, move: false },
 ];
 
 /** keccak256("Swap(bytes32,address,int128,int128,uint160,uint128,int24,uint24)") */
